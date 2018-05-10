@@ -1,4 +1,4 @@
-﻿FROM microsoft/aspnetcore-build:2.0 AS build-env
+﻿FROM microsoft/aspnetcore-build:latest AS build-env
 WORKDIR /app
 
 # Copy csproj and restore as distinct layers
@@ -10,7 +10,7 @@ COPY . ./
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
-FROM microsoft/aspnetcore:2.0
+FROM microsoft/aspnetcore:latest
 WORKDIR /app
 COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet",  "OKN.WebApp.dll"]
