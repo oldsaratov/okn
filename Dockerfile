@@ -1,7 +1,7 @@
-﻿FROM microsoft/aspnetcore:latest AS base
+﻿FROM microsoft/dotnet:2.1-aspnetcore-runtime-alpine AS base
 WORKDIR /app
 
-FROM microsoft/dotnet:latest AS build
+FROM microsoft/dotnet:2.1-sdk-alpine AS build
 WORKDIR /app
 
 # copy everything and build the project
