@@ -24,32 +24,24 @@ namespace OKN.Core.Handlers.Queries
 
         public async Task<PagedList<OKNObject>> Handle(ListObjectsQuery query, CancellationToken cancellationToken)
         {
-            try
+            var cursor = _context.Objects.Find(Builders<ObjectEntity>.Filter.Empty);
+            var count = cursor.Count();
+            var items = await cursor
+                .Skip((query.Page - 1) * query.PerPage)
+                .Limit(query.PerPage)
+                .ToListAsync(cancellationToken: cancellationToken);
+
+            var model = _mapper.Map<List<ObjectEntity>, List<OKNObject>>(items);
+
+            var paged = new PagedList<OKNObject>
             {
-                var cursor = _context.Objects.Find(Builders<ObjectEntity>.Filter.Empty);
-                var count = cursor.Count();
-                var items = await cursor
-                    .Skip((query.Page - 1) * query.PerPage)
-                    .Limit(query.PerPage)
-                    .ToListAsync(cancellationToken: cancellationToken);
+                Data = model,
+                Page = query.Page,
+                PerPage = query.PerPage,
+                Total = count
+            };
 
-                var model = _mapper.Map<List<ObjectEntity>, List<OKNObject>>(items);
-
-                var paged = new PagedList<OKNObject>
-                {
-                    Data = model,
-                    Page = query.Page,
-                    PerPage = query.PerPage,
-                    Total = count
-                };
-
-                return paged;
-
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return paged;
         }
     }
 }
