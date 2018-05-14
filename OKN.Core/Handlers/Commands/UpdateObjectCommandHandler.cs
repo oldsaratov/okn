@@ -1,29 +1,50 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OKN.Core.Models;
-using AutoMapper;
 using MediatR;
 using OKN.Core.Models.Commands;
+using OKN.Core.Models.Entities;
+using OKN.Core.Models.Queries;
 
 namespace OKN.Core.Handlers.Commands
 {
-    public class UpdateObjectCommandHandler : IRequestHandler<UpdateObjectCommand, OKNObject>
+    public class UpdateObjectCommandHandler : IRequestHandler<UpdateObjectCommand>
     {
-        IMapper _mapper;
-        IMediator _mediator;
-        DbContext _context;
+        private readonly IMediator _mediator;
+        private readonly DbContext _context;
 
-        public UpdateObjectCommandHandler(IMapper mapper, DbContext context, IMediator mediator)
+        public UpdateObjectCommandHandler(DbContext context, IMediator mediator)
         {
-            _mapper = mapper;
             _context = context;
             _mediator = mediator;
         }
 
-        public async Task<OKNObject> Handle(UpdateObjectCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateObjectCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var model = await _mediator.Send(new ObjectQuery()
+            {
+                ObjectId = request.ObjectId
+            }, cancellationToken);
+
+            if (model == null) return;
+
+            var entity = new ObjectEntity()
+            {
+                ObjectId = request.ObjectId,
+                Name = request.Name,
+                Description = request.Description,
+                Longitude = request.Longitude,
+                Latitude = request.Latitude,
+                Type = request.Type,
+                Version = new VersionInfoEntity()
+                {
+                    Version = model.Version?.Version + 1 ?? 1,
+                    CreateDate = DateTime.UtcNow,
+                    Author = request.Author
+                }
+            };
+            
+            await _context.Objects.InsertOneAsync(entity, cancellationToken: cancellationToken);
         }
     }
 }

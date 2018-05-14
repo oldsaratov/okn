@@ -27,8 +27,9 @@ namespace OKN.Core.Handlers.Queries
             var cursor = _context.Objects.Find(Builders<ObjectEntity>.Filter.Empty);
             var count = cursor.Count();
             var items = await cursor
-                .Skip((query.Page - 1) * query.PerPage)
+                .SortByDescending(x => x.Version.Version)
                 .Limit(query.PerPage)
+                .Skip((query.Page - 1) * query.PerPage)
                 .ToListAsync(cancellationToken: cancellationToken);
 
             var model = _mapper.Map<List<ObjectEntity>, List<OKNObject>>(items);

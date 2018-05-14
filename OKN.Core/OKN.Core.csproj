@@ -18,8 +18,8 @@
     <Folder Include="Handlers\Queries\" />
     <Folder Include="Models\Entities\" />
   </ItemGroup>
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DebugType>None</DebugType>
-        <DebugSymbols>false</DebugSymbols>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugType>None</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
 </Project>

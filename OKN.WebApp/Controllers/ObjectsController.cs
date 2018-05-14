@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using OKN.Core.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
@@ -21,48 +22,50 @@ namespace OKN.WebApp.Controllers
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
-        // POST api/objects
-        [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(string))]
-        public async Task<IActionResult> Create()
-        {
-            var fileId = await _mediator.Send(new CreateObjectCommand());
-
-            if (fileId == null)
-                return NotFound();
-
-            return Ok(fileId);
-        }
-
-        // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/update
-        [HttpPost("{objectId}")]
+        // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        [HttpPost("{objectId}"), Authorize]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(OKNObject))]
         public async Task<IActionResult> Update([FromRoute]string objectId,
-                                                [FromBody] UpdateObjectViewModel viewModel)
+                                                [FromBody] UpdateObjectViewModel request)
         {
-            if (viewModel != null)
+            if (request == null) return BadRequest();
+            
+            var current = await _mediator.Send(new ObjectQuery()
             {
-                var result = await _mediator.Send(new UpdateObjectCommand()
-                {
-                    ObjectId = objectId,
-                    Name = viewModel.Name,
-                    Description = viewModel.Description
-                });
+                ObjectId = objectId
+            });
 
-                return Ok(result);
-            }
+            if (current == null) return NotFound();
+            
+            var currentUser = HttpContext.User;
+                
+            await _mediator.Send(new UpdateObjectCommand()
+            {
+                ObjectId = objectId,
+                Name = request.Name,
+                Description = request.Description,
+                Latitude = request.Latitude,
+                Longitude = request.Longitude,
+                Type = request.Type
+            });
+            
+            var model = await _mediator.Send(new ObjectQuery()
+            {
+                ObjectId = objectId
+            });
 
-            return BadRequest();
+            return Ok(model);
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
         [HttpGet("{objectId}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(OKNObject))]
-        public async Task<IActionResult> Get([FromRoute]string objectId)
+        public async Task<IActionResult> Get([FromRoute]string objectId, [FromQuery] long? version)
         {
             var model = await _mediator.Send(new ObjectQuery()
             {
-                ObjectId = objectId
+                ObjectId = objectId,
+                Version = version
             });
 
             if (model == null)
