@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using OKN.Core.Models;
@@ -78,13 +79,20 @@ namespace OKN.WebApp.Controllers
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(PagedList<OKNObject>))]
         public async Task<IActionResult> List([FromQuery]int? page,
-                                              [FromQuery]int? perPage)
+                                              [FromQuery]int? perPage, [FromQuery] string types)
         {
-            var model = await _mediator.Send(new ListObjectsQuery
+            var query = new ListObjectsQuery
             {
                 Page = page ?? 1,
                 PerPage = perPage ?? DEFAULT_PER_PAGE
-            });
+            };
+                
+            if (types != null)
+            {
+                query.Types = types.Split(',').Select(x => (EObjectType)(int.Parse(x))).ToArray();
+            }
+            
+            var model = await _mediator.Send(query);
 
             if (model == null)
                 return BadRequest();

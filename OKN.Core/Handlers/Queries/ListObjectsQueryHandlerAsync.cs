@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -24,7 +25,13 @@ namespace OKN.Core.Handlers.Queries
 
         public async Task<PagedList<OKNObject>> Handle(ListObjectsQuery query, CancellationToken cancellationToken)
         {
-            var cursor = _context.Objects.Find(Builders<ObjectEntity>.Filter.Empty);
+            var filter = Builders<ObjectEntity>.Filter.Empty;
+            if (query.Types != null)
+            {
+                filter = Builders<ObjectEntity>.Filter.In(x => x.Type, query.Types);
+            }
+            
+            var cursor = _context.Objects.Find(filter);
             var count = cursor.Count();
             var items = await cursor
                 .SortByDescending(x => x.Version.Version)
