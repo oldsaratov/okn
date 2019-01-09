@@ -1,50 +1,62 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using MongoDB.Driver;
+using OKN.Core.Aggregate;
+using OKN.Core.Identity;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Entities;
-using OKN.Core.Models.Queries;
 
 namespace OKN.Core.Handlers.Commands
 {
-    public class UpdateObjectCommandHandler : IRequestHandler<UpdateObjectCommand>
+    public class UpdateObjectCommandHandler : CommandHandler<ObjectAggregate, ObjectId, IExecutionResult, UpdateObjectCommand>
     {
-        private readonly IMediator _mediator;
         private readonly DbContext _context;
 
-        public UpdateObjectCommandHandler(DbContext context, IMediator mediator)
+        public UpdateObjectCommandHandler(DbContext context)
         {
             _context = context;
-            _mediator = mediator;
         }
 
-        public async Task Handle(UpdateObjectCommand request, CancellationToken cancellationToken)
+        public override async Task<IExecutionResult> ExecuteCommandAsync(ObjectAggregate aggregate, UpdateObjectCommand command, CancellationToken cancellationToken)
         {
-            var model = await _mediator.Send(new ObjectQuery()
-            {
-                ObjectId = request.ObjectId
-            }, cancellationToken);
+            var filter = Builders<ObjectEntity>.Filter.Where(x => x.ObjectId == command.ObjectId);
+            var originalEntity = await _context.Objects
+                .Find(filter)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (model == null) return;
-
-            var entity = new ObjectEntity()
-            {
-                ObjectId = request.ObjectId,
-                Name = request.Name,
-                Description = request.Description,
-                Longitude = request.Longitude,
-                Latitude = request.Latitude,
-                Type = request.Type,
-                Version = new VersionInfoEntity()
-                {
-                    Version = model.Version?.Version + 1 ?? 1,
-                    CreateDate = DateTime.UtcNow,
-                    Author = request.Author
-                }
-            };
+            if (originalEntity == null) return new FailedExecutionResult(new[] { "Object with this id doesn't exist" });
             
-            await _context.Objects.InsertOneAsync(entity, cancellationToken: cancellationToken);
+            //Put original entity to history table
+            await _context.ObjectVersions.InsertOneAsync(originalEntity, cancellationToken: cancellationToken);
+
+            var entity = new ObjectEntity
+            {
+                Name = command.Name,
+                Description = command.Description,
+                Longitude = command.Longitude,
+                Latitude = command.Latitude,
+                Type = command.Type,
+                Version = new VersionInfoEntity
+                {
+                    VersionId = originalEntity.Version?.VersionId + 1 ?? 1,
+                    CreateDate = DateTime.UtcNow,
+                    Author = new UserInfoEntity
+                    {
+                        Email = command.Email,
+                        UserName = command.Name,
+                        Id = command.UserId
+                    }
+                },
+                Events = originalEntity.Events,
+                ObjectId = originalEntity.ObjectId,
+            };
+
+            await _context.Objects.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+
+            return new SuccessExecutionResult();
         }
     }
 }

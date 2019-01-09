@@ -10,11 +10,15 @@ namespace OKN.Core.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<ObjectEntity, OKNObject>();
+            CreateMap<ObjectEntity, OknObject>();
+            CreateMap<ObjectEventEntity, OKNObjectEvent>();
+            CreateMap<LinkEntity, OKNObjectEventLink>();
+            CreateMap<ImageLinkEntity, OKNObjectEventImage>();
             CreateMap<VersionInfoEntity, VersionInfo>();
+            CreateMap<UserInfoEntity, UserInfo>();
             CreateMap<ObjectId, string>().ConvertUsing(o => o.ToString());
-            CreateMap<string, ObjectId>().ConvertUsing(ObjectId.Parse);
-            CreateMap<BsonDateTime, DateTime>().ConvertUsing(o => (DateTime) o);
+            CreateMap<string, ObjectId>().ConvertUsing(o => ObjectId.Parse(o));
+            CreateMap<BsonDateTime, DateTime>().ConvertUsing(o => (DateTime)o);
         }
     }
 }

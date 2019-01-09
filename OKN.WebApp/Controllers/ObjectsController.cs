@@ -1,73 +1,75 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
+using EventFlow;
+using EventFlow.Queries;
 using OKN.Core.Models;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OKN.Core.Identity;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
 using OKN.WebApp.Models.Objects;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace OKN.WebApp.Controllers
 {
     [Route("api/objects")]
     public class ObjectsController : BaseController
     {
-        private readonly IMediator _mediator;
+        private readonly ICommandBus _commandBus;
+        private readonly IQueryProcessor _queryProcessor;
 
-        public ObjectsController(IMediator mediator)
+        public ObjectsController(ICommandBus commandBus, IQueryProcessor queryProcessor)
         {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _commandBus = commandBus;
+            _queryProcessor = queryProcessor;
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
-        [HttpPost("{objectId}"), Authorize]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(OKNObject))]
+        [HttpPost("{objectId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(void), 200)]
         public async Task<IActionResult> Update([FromRoute]string objectId,
                                                 [FromBody] UpdateObjectViewModel request)
         {
             if (request == null) return BadRequest();
-            
-            var current = await _mediator.Send(new ObjectQuery()
-            {
-                ObjectId = objectId
-            });
+
+            var objectQuery = new ObjectQuery(objectId);
+
+            var current = await _queryProcessor.ProcessAsync(objectQuery, CancellationToken.None);
 
             if (current == null) return NotFound();
-            
+
             var currentUser = HttpContext.User;
-                
-            await _mediator.Send(new UpdateObjectCommand()
+
+            var updateCommand = new UpdateObjectCommand(new ObjectId(objectId))
             {
                 ObjectId = objectId,
                 Name = request.Name,
                 Description = request.Description,
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
-                Type = request.Type
-            });
-            
-            var model = await _mediator.Send(new ObjectQuery()
-            {
-                ObjectId = objectId
-            });
+                Type = request.Type,
 
-            return Ok(model);
+                UserId = long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)),
+                UserName = currentUser.FindFirstValue(ClaimTypes.Name),
+                Email = currentUser.FindFirstValue(ClaimTypes.Email)
+            };
+
+            await _commandBus.PublishAsync(updateCommand, CancellationToken.None);
+
+            return Ok();
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
         [HttpGet("{objectId}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(OKNObject))]
-        public async Task<IActionResult> Get([FromRoute]string objectId, [FromQuery] long? version)
+        [ProducesResponseType(typeof(OknObject), 200)]
+        public async Task<IActionResult> Get([FromRoute]string objectId)
         {
-            var model = await _mediator.Send(new ObjectQuery()
-            {
-                ObjectId = objectId,
-                Version = version
-            });
+            var model = await _queryProcessor.ProcessAsync(new ObjectQuery(objectId), CancellationToken.None);
 
             if (model == null)
                 return NotFound();
@@ -77,23 +79,22 @@ namespace OKN.WebApp.Controllers
 
         // GET api/objects
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(PagedList<OKNObject>))]
+        [ProducesResponseType(typeof(List<OknObject>), 200)]
         public async Task<IActionResult> List([FromQuery]int? page,
                                               [FromQuery]int? perPage, [FromQuery] string types)
         {
             var query = new ListObjectsQuery
             {
                 Page = page ?? 1,
-                PerPage = perPage ?? DEFAULT_PER_PAGE
+                PerPage = perPage ?? DefaultPerPage
             };
-                
+
             if (types != null)
             {
                 query.Types = types.Split(',').Select(x => (EObjectType)(int.Parse(x))).ToArray();
             }
-            
-            var model = await _mediator.Send(query);
 
+            var model = await _queryProcessor.ProcessAsync(query, CancellationToken.None);
             if (model == null)
                 return BadRequest();
 

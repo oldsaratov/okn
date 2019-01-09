@@ -1,8 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OKN.WebApp", "OKN.WebApp\OKN.WebApp.csproj", "{61B1EB1D-B6DF-4BBC-8486-54DD4D3CCE5E}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OKN.WebApp", "OKN.WebApp\OKN.WebApp.csproj", "{61B1EB1D-B6DF-4BBC-8486-54DD4D3CCE5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OKN.Core", "OKN.Core\OKN.Core.csproj", "{E7108AEB-6974-4254-A863-B62FA911B042}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OKN.Core", "OKN.Core\OKN.Core.csproj", "{E7108AEB-6974-4254-A863-B62FA911B042}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNet.Security.OAuth.Oldsaratov", "AspNet.Security.OAuth.Oldsaratov\AspNet.Security.OAuth.Oldsaratov.csproj", "{70C26E43-9D0A-4F5D-8F07-8EF520AEEF22}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OKN.Core.Tests", "OKN.Core.Tests\OKN.Core.Tests.csproj", "{49A4F573-72D1-4C97-80FD-6A53331D3217}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +25,19 @@ Global
 		{E7108AEB-6974-4254-A863-B62FA911B042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7108AEB-6974-4254-A863-B62FA911B042}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7108AEB-6974-4254-A863-B62FA911B042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70C26E43-9D0A-4F5D-8F07-8EF520AEEF22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70C26E43-9D0A-4F5D-8F07-8EF520AEEF22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70C26E43-9D0A-4F5D-8F07-8EF520AEEF22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70C26E43-9D0A-4F5D-8F07-8EF520AEEF22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49A4F573-72D1-4C97-80FD-6A53331D3217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49A4F573-72D1-4C97-80FD-6A53331D3217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49A4F573-72D1-4C97-80FD-6A53331D3217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49A4F573-72D1-4C97-80FD-6A53331D3217}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C0BA7C95-EAFF-43B4-B6AC-9FE3AA3E628A}
 	EndGlobalSection
 EndGlobal

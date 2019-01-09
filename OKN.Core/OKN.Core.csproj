@@ -3,20 +3,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="4.1.0" />
-    <PackageReference Include="AutoMapper" Version="6.2.2" />
-    <PackageReference Include="MongoDB.Driver" Version="2.6.0" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0-rc1-final" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="4.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\Commands\" />
-    <Folder Include="Models\Queries\" />
-    <Folder Include="Handlers\Commands\" />
-    <Folder Include="Handlers\Queries\" />
-    <Folder Include="Models\Entities\" />
+    <PackageReference Include="EventFlow" Version="0.68.3728" />
+    <PackageReference Include="EventFlow.DependencyInjection" Version="0.68.3728" />
+    <PackageReference Include="AutoMapper" Version="8.0.0" />
+    <PackageReference Include="EventFlow.MongoDB" Version="0.68.3728" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.7.2" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>None</DebugType>

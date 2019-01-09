@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using MediatR;
+using EventFlow.Queries;
 using MongoDB.Driver;
 using OKN.Core.Models;
 using OKN.Core.Models.Entities;
@@ -12,36 +10,36 @@ using OKN.Core.Models.Queries;
 
 namespace OKN.Core.Handlers.Queries
 {
-    public class ListObjectsQueryHandlerAsync : IRequestHandler<ListObjectsQuery, PagedList<OKNObject>>
+    public class ListObjectsQueryHandler : IQueryHandler<ListObjectsQuery, PagedList<OknObject>>
     {
         private readonly IMapper _mapper;
         private readonly DbContext _context;
 
-        public ListObjectsQueryHandlerAsync(IMapper mapper, DbContext context)
+        public ListObjectsQueryHandler(IMapper mapper, DbContext context)
         {
             _mapper = mapper;
             _context = context;
         }
 
-        public async Task<PagedList<OKNObject>> Handle(ListObjectsQuery query, CancellationToken cancellationToken)
+        public async Task<PagedList<OknObject>> ExecuteQueryAsync(ListObjectsQuery query, CancellationToken cancellationToken)
         {
             var filter = Builders<ObjectEntity>.Filter.Empty;
             if (query.Types != null)
             {
                 filter = Builders<ObjectEntity>.Filter.In(x => x.Type, query.Types);
             }
-            
+
             var cursor = _context.Objects.Find(filter);
-            var count = cursor.Count();
+            var count = cursor.CountDocuments(cancellationToken);
             var items = await cursor
-                .SortByDescending(x => x.Version.Version)
+                .SortByDescending(x => x.Version.VersionId)
                 .Limit(query.PerPage)
                 .Skip((query.Page - 1) * query.PerPage)
-                .ToListAsync(cancellationToken: cancellationToken);
+                .ToListAsync(cancellationToken);
 
-            var model = _mapper.Map<List<ObjectEntity>, List<OKNObject>>(items);
+            var model = _mapper.Map<List<ObjectEntity>, List<OknObject>>(items);
 
-            var paged = new PagedList<OKNObject>
+            var paged = new PagedList<OknObject>
             {
                 Data = model,
                 Page = query.Page,

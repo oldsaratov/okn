@@ -1,13 +1,18 @@
-﻿using System.Text;
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AspNet.Security.OAuth.Oldsaratov;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using OKN.Core;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
+using EventFlow;
+using EventFlow.DependencyInjection.Extensions;
+using EventFlow.Extensions;
+using MongoDB.Driver;
+using OKN.Core.Handlers.Commands;
+using OKN.Core.Handlers.Queries;
+using OKN.Core.Models.Commands;
 
 namespace OKN.WebApp
 {
@@ -20,30 +25,25 @@ namespace OKN.WebApp
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
-                
+
             if (env.IsDevelopment())
             {
                 builder.AddUserSecrets<Startup>();
             }
-            
+
             Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
-        {   
-            services.AddAuthentication(options =>
+        {
+            services.AddMemoryCache();
+            services.AddAuthentication(OldsaratovAuthenticationDefaults.AuthenticationScheme).AddOldsaratov(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(options =>
-            {
-                options.Authority = Configuration["Jwt:Issuer"];
-                options.Audience = Configuration["Jwt:Audience"];
+                options.TokenExpirationTimeout = TimeSpan.FromSeconds(3600);
             });
-            
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAny",
@@ -56,32 +56,42 @@ namespace OKN.WebApp
                             .AllowCredentials();
                     });
             });
-            
-            services.AddMvc();
-            services.AddMediatR();
 
-            services.AddSingleton(new DbContext(Configuration.GetConnectionString("MongoDB")));
+            services.AddMvc();
+            
+            ConfigureMongo(services);
+
+            services.AddTransient<DbContext>();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Archief API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "OKN API", Version = "v1" });
             });
 
             CoreContainer.Init(services);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        private void ConfigureMongo(IServiceCollection services)
+        {
+            var url = new MongoUrl(Configuration.GetConnectionString("MongoDB"));
+
+            var client = new MongoClient(url);
+            var database = client.GetDatabase(url.DatabaseName);
+
+            services.AddSingleton(database);
+        }
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseCors("AllowAny");
             app.UseAuthentication();
             app.UseMvc();
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

@@ -4,19 +4,18 @@ using MongoDB.Driver;
 namespace OKN.Core
 {
     public class DbContext
-	{
-		public DbContext(string connectionString)
-		{
-            var url = new MongoUrl(connectionString);
-            var settings = new MongoClientSettings();
-          
-			var client = new MongoClient(url);
-			Database = client.GetDatabase(url.DatabaseName);
+    {
+        private readonly IMongoDatabase _database;
+
+        public DbContext(IMongoDatabase database)
+        {
+            _database = database;
 		}
 
-		private IMongoDatabase Database { get; }
+		public virtual IMongoCollection<ObjectEntity> Objects =>
+		    _database.GetCollection<ObjectEntity>("objects");
 
-		public IMongoCollection<ObjectEntity> Objects => 
-            Database.GetCollection<ObjectEntity>("objects");
+        public virtual IMongoCollection<ObjectEntity> ObjectVersions =>
+            _database.GetCollection<ObjectEntity>("objects_versions");
     }
 }

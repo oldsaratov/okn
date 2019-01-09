@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -28,18 +28,33 @@ namespace OKN.Core.Models.Entities
         [BsonElement("versionInfo")]
         public VersionInfoEntity Version { get; set; }
 
+        [BsonElement("events")]
+        public List<ObjectEventEntity> Events { get; set; }
+
         public ObjectEntity() { }
     }
 
     public class VersionInfoEntity
     {
-        [BsonElement("version")]
-        public long Version { get; set; }
+        [BsonElement("versionId")]
+        public long VersionId { get; set; }
         
         [BsonElement("createdAt")]
         public BsonDateTime CreateDate { get; set; }
         
         [BsonElement("createdBy")]
-        public string Author { get; set; }
+        public UserInfoEntity Author { get; set; }
+    }
+
+    public class UserInfoEntity
+    {
+        [BsonElement("id")]
+        public long Id { get; set; }
+
+        [BsonElement("name")]
+        public string UserName { get; set; }
+
+        [BsonElement("email")]
+        public string Email { get; set; }
     }
 }
