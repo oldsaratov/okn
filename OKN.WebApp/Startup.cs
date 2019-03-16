@@ -7,6 +7,7 @@ using OKN.Core;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using MongoDB.Driver;
+using System.Reflection;
 
 namespace OKN.WebApp
 {
@@ -53,9 +54,11 @@ namespace OKN.WebApp
 
             services.AddTransient<DbContext>();
 
+            var v = Assembly.GetEntryAssembly().GetName().Version;
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "OKN API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = $"OKN API", Version = v.ToString() });
             });
 
             CoreContainer.Init(services);
