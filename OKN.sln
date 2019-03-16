@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNet.Security.OAuth.Oldsa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OKN.Core.Tests", "OKN.Core.Tests\OKN.Core.Tests.csproj", "{49A4F573-72D1-4C97-80FD-6A53331D3217}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{3A9DF67F-0BF7-48BB-8911-5A9897C66938}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{49A4F573-72D1-4C97-80FD-6A53331D3217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49A4F573-72D1-4C97-80FD-6A53331D3217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49A4F573-72D1-4C97-80FD-6A53331D3217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A9DF67F-0BF7-48BB-8911-5A9897C66938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A9DF67F-0BF7-48BB-8911-5A9897C66938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A9DF67F-0BF7-48BB-8911-5A9897C66938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9DF67F-0BF7-48BB-8911-5A9897C66938}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

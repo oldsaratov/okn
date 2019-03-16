@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  okn.webapp:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80"
+    image: ${DOCKER_REGISTRY-}oknwebapp
+    build:
+      context: .
+      dockerfile: OKN.WebApp/Dockerfile

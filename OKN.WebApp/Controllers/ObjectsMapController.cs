@@ -23,7 +23,7 @@ namespace OKN.WebApp.Controllers
 
 
         // GET api/objects/map
-        [HttpGet]
+        [HttpGet("map")]
         [ProducesResponseType(typeof(List<OknObject>), 200)]
         public async Task<IActionResult> GetMap([FromQuery] string types, int? zoomLevel)
         {

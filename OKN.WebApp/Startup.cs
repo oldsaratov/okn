@@ -6,13 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OKN.Core;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
-using EventFlow;
-using EventFlow.DependencyInjection.Extensions;
-using EventFlow.Extensions;
 using MongoDB.Driver;
-using OKN.Core.Handlers.Commands;
-using OKN.Core.Handlers.Queries;
-using OKN.Core.Models.Commands;
 
 namespace OKN.WebApp
 {
@@ -24,12 +18,9 @@ namespace OKN.WebApp
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddUserSecrets<Startup>()
                 .AddEnvironmentVariables();
 
-            if (env.IsDevelopment())
-            {
-                builder.AddUserSecrets<Startup>();
-            }
 
             Configuration = builder.Build();
         }
@@ -73,7 +64,8 @@ namespace OKN.WebApp
 
         private void ConfigureMongo(IServiceCollection services)
         {
-            var url = new MongoUrl(Configuration.GetConnectionString("MongoDB"));
+            var connectionString = Configuration.GetConnectionString("MongoDB");
+            var url = new MongoUrl(connectionString);
 
             var client = new MongoClient(url);
             var database = client.GetDatabase(url.DatabaseName);

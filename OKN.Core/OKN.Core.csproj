@@ -3,12 +3,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="EventFlow" Version="0.68.3728" />
-    <PackageReference Include="EventFlow.DependencyInjection" Version="0.68.3728" />
+    <PackageReference Include="EventFlow" Version="0.69.3772" />
+    <PackageReference Include="EventFlow.DependencyInjection" Version="0.69.3772" />
     <PackageReference Include="AutoMapper" Version="8.0.0" />
-    <PackageReference Include="EventFlow.MongoDB" Version="0.68.3728" />
+    <PackageReference Include="EventFlow.MongoDB" Version="0.69.3772" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.7.2" />
+    <PackageReference Include="MongoDB.Driver" Version="2.8.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
