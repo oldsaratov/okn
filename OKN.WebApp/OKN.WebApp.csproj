@@ -4,7 +4,7 @@
     <UserSecretsId>okn</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
-    <AssemblyVersion>0.1.0.1</AssemblyVersion>
+    <AssemblyVersion>0.1.0.2</AssemblyVersion>
     <FileVersion>0.0.0.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
