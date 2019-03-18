@@ -55,10 +55,11 @@ namespace OKN.WebApp
             services.AddTransient<DbContext>();
 
             var v = Assembly.GetEntryAssembly().GetName().Version;
+            var b = Configuration.GetValue<string>("BuildNumber");
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = $"OKN API", Version = v.ToString() });
+                c.SwaggerDoc("v1", new Info { Title = $"OKN API", Version = v.ToString(), Description = $"Build Number: {b}" });
             });
 
             CoreContainer.Init(services);
