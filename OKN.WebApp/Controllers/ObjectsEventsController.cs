@@ -76,7 +76,7 @@ namespace OKN.WebApp.Controllers
             }, CancellationToken.None);
 
             if (model == null)
-                return NotFound();
+                return Ok(Array.Empty<OKNObjectEvent>());
 
             return Ok(model);
         }
