@@ -4,12 +4,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow;
-using EventFlow.Queries;
 using Microsoft.AspNetCore.Authorization;
 using OKN.Core.Models;
 using Microsoft.AspNetCore.Mvc;
-using OKN.Core.Identity;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
 using OKN.WebApp.Models.ObjectEvents;
@@ -19,13 +16,11 @@ namespace OKN.WebApp.Controllers
     [Route("api/objects")]
     public class ObjectsEventsController : BaseController
     {
-        private readonly ICommandBus _commandBus;
-        private readonly IQueryProcessor _queryProcessor;
+        private readonly ObjectsRepository _objectsRepository;
 
-        public ObjectsEventsController(ICommandBus commandBus, IQueryProcessor queryProcessor)
+        public ObjectsEventsController(ObjectsRepository objectsRepository)
         {
-            _commandBus = commandBus;
-            _queryProcessor = queryProcessor;
+            _objectsRepository = objectsRepository;
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
@@ -42,7 +37,7 @@ namespace OKN.WebApp.Controllers
             var links = request.Links?.Select(x => new OKNObjectEventLink(x.Description, x.Url)).ToList();
             var images = request.Images?.Select(x => new OKNObjectEventImage(x.Description, x.Url)).ToList();
 
-            var updateCommand = new CreateObjectEventCommand(new ObjectId(objectId))
+            var updateCommand = new CreateObjectEventCommand
             {
                 ObjectId = objectId,
                 EventId = Guid.NewGuid().ToString(),
@@ -57,7 +52,7 @@ namespace OKN.WebApp.Controllers
                 Email = currentUser.FindFirstValue(ClaimTypes.Email)
             };
 
-            await _commandBus.PublishAsync(updateCommand, CancellationToken.None);
+            await _objectsRepository.CreateEvent(updateCommand, CancellationToken.None);
 
             return Ok();
         }
@@ -68,7 +63,7 @@ namespace OKN.WebApp.Controllers
         public async Task<IActionResult> ListEvents([FromQuery]int? page,
             [FromQuery]int? perPage, [FromRoute]string objectId)
         {
-            var model = await _queryProcessor.ProcessAsync(new ListObjectEventsQuery
+            var model = await _objectsRepository.GetObjectEvents(new ListObjectEventsQuery
             {
                 ObjectId = objectId,
                 Page = page ?? 1,
@@ -86,7 +81,7 @@ namespace OKN.WebApp.Controllers
         [ProducesResponseType(typeof(OKNObjectEvent), 200)]
         public async Task<IActionResult> GetEvent([FromRoute]string objectId, [FromRoute] string eventId)
         {
-            var model = await _queryProcessor.ProcessAsync(new ObjectEventQuery(objectId, eventId), CancellationToken.None);
+            var model = await _objectsRepository.GetEvent(new ObjectEventQuery(objectId, eventId), CancellationToken.None);
 
             if (model == null)
                 return NotFound();

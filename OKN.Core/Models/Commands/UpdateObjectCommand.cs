@@ -1,12 +1,8 @@
-﻿using EventFlow.Aggregates.ExecutionResults;
-using EventFlow.Commands;
-using EventFlow.Core;
-using OKN.Core.Aggregate;
-using OKN.Core.Identity;
+﻿using OKN.Core.Identity;
 
 namespace OKN.Core.Models.Commands
 {
-	public class UpdateObjectCommand : Command<ObjectAggregate, ObjectId, IExecutionResult>
+    public class UpdateObjectCommand
     {
 		public string ObjectId { get; set; }
 		public string Name { get; set; }
@@ -19,12 +15,9 @@ namespace OKN.Core.Models.Commands
         public string UserName { get; set; }
         public string Email { get; set; }
 
-        public UpdateObjectCommand(ObjectId aggregateId) : base(aggregateId)
+        public UpdateObjectCommand(ObjectId objectId)
         {
-        }
-
-        public UpdateObjectCommand(ObjectId aggregateId, ISourceId sourceId) : base(aggregateId, sourceId)
-        {
+            ObjectId = objectId.Value;
         }
     }
 }

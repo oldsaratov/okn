@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/OKN.WebApp/bin/Debug/netcoreapp2.1/OKN.WebApp.dll",
+            "program": "${workspaceFolder}/OKN.WebApp/bin/Debug/netcoreapp2.2/OKN.WebApp.dll",
             "args": [],
             "cwd": "${workspaceFolder}/OKN.WebApp",
             "stopAtEntry": false,

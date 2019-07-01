@@ -1,31 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow;
-using EventFlow.Queries;
 using OKN.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OKN.Core.Identity;
-using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
 using OKN.WebApp.Models.Objects;
+using OKN.Core.Models.Commands;
 
 namespace OKN.WebApp.Controllers
 {
     [Route("api/objects")]
     public class ObjectsController : BaseController
     {
-        private readonly ICommandBus _commandBus;
-        private readonly IQueryProcessor _queryProcessor;
+        private readonly ObjectsRepository _objectsRepository;
 
-        public ObjectsController(ICommandBus commandBus, IQueryProcessor queryProcessor)
+        public ObjectsController(ObjectsRepository objectsRepository)
         {
-            _commandBus = commandBus;
-            _queryProcessor = queryProcessor;
+            _objectsRepository = objectsRepository;
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
@@ -39,7 +34,7 @@ namespace OKN.WebApp.Controllers
 
             var objectQuery = new ObjectQuery(objectId);
 
-            var current = await _queryProcessor.ProcessAsync(objectQuery, CancellationToken.None);
+            var current = await _objectsRepository.GetObject(objectQuery, CancellationToken.None);
 
             if (current == null) return NotFound();
 
@@ -59,7 +54,7 @@ namespace OKN.WebApp.Controllers
                 Email = currentUser.FindFirstValue(ClaimTypes.Email)
             };
 
-            await _commandBus.PublishAsync(updateCommand, CancellationToken.None);
+            await _objectsRepository.UpdateObject(updateCommand, CancellationToken.None);
 
             return Ok();
         }
@@ -69,7 +64,7 @@ namespace OKN.WebApp.Controllers
         [ProducesResponseType(typeof(OknObject), 200)]
         public async Task<IActionResult> Get([FromRoute]string objectId)
         {
-            var model = await _queryProcessor.ProcessAsync(new ObjectQuery(objectId), CancellationToken.None);
+            var model = await _objectsRepository.GetObject(new ObjectQuery(objectId), CancellationToken.None);
 
             if (model == null)
                 return NotFound();
@@ -94,7 +89,7 @@ namespace OKN.WebApp.Controllers
                 query.Types = types.Split(',').Select(x => (EObjectType)(int.Parse(x))).ToArray();
             }
 
-            var model = await _queryProcessor.ProcessAsync(query, CancellationToken.None);
+            var model = await _objectsRepository.GetObjects(query, CancellationToken.None);
             if (model == null)
                 return BadRequest();
 
