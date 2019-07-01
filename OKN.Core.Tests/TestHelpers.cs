@@ -2,19 +2,22 @@ using AutoMapper;
 using MongoDB.Driver;
 using OKN.Core.Mappings;
 
-public static class TestHelpers
+namespace OKN.Core.Tests
 {
-    public static IMapper GetDefaultMapper()
+    public static class TestHelpers
     {
-        var config = new MapperConfiguration(cfg => cfg.AddProfile(typeof(MappingProfile)));
-        var mapper = config.CreateMapper();
+        public static IMapper GetDefaultMapper()
+        {
+            var config = new MapperConfiguration(cfg => cfg.AddProfile(typeof(MappingProfile)));
+            var mapper = config.CreateMapper();
 
-        return mapper;
-    }
+            return mapper;
+        }
 
-    public static IMongoDatabase GetDefaultDatabase(string connectionString)
-    {
-        var client = new MongoClient(connectionString);
-        return client.GetDatabase("okn");
+        public static IMongoDatabase GetDefaultDatabase(string connectionString)
+        {
+            var client = new MongoClient(connectionString);
+            return client.GetDatabase("okn");
+        }
     }
 }

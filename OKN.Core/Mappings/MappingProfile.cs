@@ -12,8 +12,6 @@ namespace OKN.Core.Mappings
         {
             CreateMap<ObjectEntity, OknObject>();
             CreateMap<ObjectEventEntity, OKNObjectEvent>();
-            CreateMap<LinkEntity, OKNObjectEventLink>();
-            CreateMap<ImageLinkEntity, OKNObjectEventImage>();
             CreateMap<VersionInfoEntity, VersionInfo>();
             CreateMap<UserInfoEntity, UserInfo>();
             CreateMap<ObjectId, string>().ConvertUsing(o => o.ToString());

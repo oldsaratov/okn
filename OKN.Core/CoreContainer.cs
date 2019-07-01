@@ -1,6 +1,7 @@
 ﻿using OKN.Core.Mappings;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using OKN.Core.Repositories;
 
 namespace OKN.Core
 {

@@ -9,6 +9,7 @@ using OKN.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
+using OKN.Core.Repositories;
 using OKN.WebApp.Models.ObjectEvents;
 
 namespace OKN.WebApp.Controllers
@@ -34,9 +35,6 @@ namespace OKN.WebApp.Controllers
 
             var currentUser = HttpContext.User;
 
-            var links = request.Links?.Select(x => new OKNObjectEventLink(x.Description, x.Url)).ToList();
-            var images = request.Images?.Select(x => new OKNObjectEventImage(x.Description, x.Url)).ToList();
-
             var updateCommand = new CreateObjectEventCommand
             {
                 ObjectId = objectId,
@@ -44,8 +42,6 @@ namespace OKN.WebApp.Controllers
                 Name = request.Name,
                 Description = request.Description,
                 OccuredAt = request.OccuredAt ?? DateTime.UtcNow,
-                Links = links,
-                Images = images,
 
                 UserId = long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)),
                 UserName = currentUser.FindFirstValue(ClaimTypes.Name),

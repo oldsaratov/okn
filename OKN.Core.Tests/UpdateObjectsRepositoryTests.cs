@@ -6,19 +6,25 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Mongo2Go;
+using OKN.Core.Exceptions;
+using OKN.Core.Repositories;
 using Xunit;
 
 namespace OKN.Core.Tests
 {
-    public class UpdateObjectsRepositoryTests : BaseRepositoryTests
+    public class UpdateObjectsRepositoryTests
     {
         [Fact]
         public async Task UpdateObjectThatNotExist()
         {
+            var runner = MongoDbRunner.Start();
+            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
+
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "1.json");
-            _runner.Import("okn", "objects", path, true);
+            runner.Import("okn", "objects", path, true);
             
-            var repo = new ObjectsRepository(null, new DbContext(_database));
+            var repo = new ObjectsRepository(null, new DbContext(database));
             
             var command = new UpdateObjectCommand(new ObjectId("5af27196e32522f798f822a41"));
 
@@ -28,13 +34,16 @@ namespace OKN.Core.Tests
         [Fact]
         public async Task UpdateObjectThatExist()
         {
+            var runner = MongoDbRunner.Start();
+            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
+
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "1.json");
-            _runner.Import("okn", "objects", path, true);
+            runner.Import("okn", "objects", path, true);
             
             var config = new MapperConfiguration(cfg => cfg.AddProfile(typeof(MappingProfile)));
             var mapper = config.CreateMapper();
             
-            var repo = new ObjectsRepository(mapper, new DbContext(_database));
+            var repo = new ObjectsRepository(mapper, new DbContext(database));
 
             var command = new UpdateObjectCommand(new ObjectId("5af2796e32522f798f822a41"))
             {

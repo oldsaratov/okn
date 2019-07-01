@@ -2,21 +2,26 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Mongo2Go;
 using OKN.Core.Models;
 using OKN.Core.Models.Queries;
+using OKN.Core.Repositories;
 using Xunit;
 
 namespace OKN.Core.Tests
 {
-    public class ObjectsListsRepositoryTests : BaseRepositoryTests
+    public class ObjectsListsRepositoryTests
     {
         [Fact]
         public async Task QueryObjectListWithPaging()
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "3.json");
-            _runner.Import("okn", "objects", path, true);
+            var runner = MongoDbRunner.Start();
+            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
 
-            var handler = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(_database));
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "3.json");
+            runner.Import("okn", "objects", path, true);
+
+            var handler = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
 
             var query = new ListObjectsQuery
             {
@@ -27,15 +32,20 @@ namespace OKN.Core.Tests
             var result = await handler.GetObjects(query, CancellationToken.None);
             Assert.NotNull(result);
             Assert.Equal(4, result.Data?.Count);
+
+            runner.Dispose();
         }
 
         [Fact]
         public async Task QueryObjectListWithoutPaging()
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "3.json");
-            _runner.Import("okn", "objects", path, true);
+            var runner = MongoDbRunner.Start();
+            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
 
-            var handler = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(_database));
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "3.json");
+            runner.Import("okn", "objects", path, true);
+
+            var handler = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
 
             var query = new ListObjectsQuery();
 
@@ -43,15 +53,20 @@ namespace OKN.Core.Tests
             Assert.NotNull(result);
             Assert.Equal(9, result.Data?.Count);
             Assert.Equal(1, result.Page);
+
+            runner.Dispose();
         }
 
         [Fact]
         public async Task QueryObjectListWithTypesFilter()
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "3.json");
-            _runner.Import("okn", "objects", path, true);
+            var runner = MongoDbRunner.Start();
+            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
 
-            var handler = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(_database));
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "3.json");
+            runner.Import("okn", "objects", path, true);
+
+            var handler = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
 
             var query = new ListObjectsQuery
             {
@@ -62,6 +77,8 @@ namespace OKN.Core.Tests
             Assert.NotNull(result);
             Assert.Equal(3, result.Data?.Count);
             Assert.All(result.Data, x => Assert.Equal(EObjectType.Federal, x.Type));
+
+            runner.Dispose();
         }
     }
 }

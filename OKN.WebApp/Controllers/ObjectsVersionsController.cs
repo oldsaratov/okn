@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using OKN.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using OKN.Core.Models.Queries;
+using OKN.Core.Repositories;
 
 namespace OKN.WebApp.Controllers
 {

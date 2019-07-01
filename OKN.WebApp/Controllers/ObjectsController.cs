@@ -10,6 +10,7 @@ using OKN.Core.Identity;
 using OKN.Core.Models.Queries;
 using OKN.WebApp.Models.Objects;
 using OKN.Core.Models.Commands;
+using OKN.Core.Repositories;
 
 namespace OKN.WebApp.Controllers
 {
