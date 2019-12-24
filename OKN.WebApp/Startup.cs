@@ -8,45 +8,35 @@ using System;
 using System.IO;
 using MongoDB.Driver;
 using System.Reflection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
 namespace OKN.WebApp
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddUserSecrets<Startup>()
-                .AddEnvironmentVariables();
-
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddApplicationInsightsTelemetry();
             services.AddMemoryCache();
             services.AddAuthentication(OldsaratovAuthenticationDefaults.AuthenticationScheme).AddOldsaratov(options =>
             {
                 options.TokenExpirationTimeout = TimeSpan.FromSeconds(3600);
             });
-
+            
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAny",
-                    builder =>
-                    {
-                        builder
-                            .AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials();
-                    });
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
             });
 
             services.AddMvc();
@@ -87,16 +77,32 @@ namespace OKN.WebApp
             services.AddSingleton(database);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+            
+            app.UseHttpsRedirection();
 
-            app.UseCors("AllowAny");
+            app.UseRouting();
+
             app.UseAuthentication();
-            app.UseMvc();
+            
+            app.UseCors("CorsPolicy");
+            
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
