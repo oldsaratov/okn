@@ -1,8 +1,8 @@
-FROM microsoft/dotnet:2.2-aspnetcore-runtime AS base
+FROM microsoft/dotnet/core/runtime:3.1 AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM microsoft/dotnet:2.2-sdk AS build
+FROM microsoft/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
 COPY ["OKN.WebApp/OKN.WebApp.csproj", "OKN.WebApp/"]
 COPY ["AspNet.Security.OAuth.Oldsaratov/AspNet.Security.OAuth.Oldsaratov.csproj", "AspNet.Security.OAuth.Oldsaratov/"]
