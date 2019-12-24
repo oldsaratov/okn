@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OKN.Core;
-using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.IO;
 using MongoDB.Driver;
 using System.Reflection;
+using Microsoft.OpenApi.Models;
 
 namespace OKN.WebApp
 {
@@ -60,7 +60,7 @@ namespace OKN.WebApp
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = $"OKN API", 
                     Version = v.ToString(), 

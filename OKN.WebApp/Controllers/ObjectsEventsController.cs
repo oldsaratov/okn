@@ -41,10 +41,8 @@ namespace OKN.WebApp.Controllers
 
             var currentUser = HttpContext.User;
 
-            var updateCommand = new CreateObjectEventCommand
+            var updateCommand = new CreateObjectEventCommand(objectId, Guid.NewGuid().ToString())
             {
-                ObjectId = objectId,
-                EventId = Guid.NewGuid().ToString(),
                 Name = request.Name,
                 Description = request.Description,
                 OccuredAt = request.OccuredAt ?? DateTime.UtcNow,
@@ -54,11 +52,40 @@ namespace OKN.WebApp.Controllers
                 Email = currentUser.FindFirstValue(ClaimTypes.Email)
             };
 
-            await _objectsRepository.CreateEvent(updateCommand, CancellationToken.None);
+            await _objectsRepository.CreateObjectEvent(updateCommand, CancellationToken.None);
 
             return Ok();
         }
 
+        // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Update event for object
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="eventId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("{objectId}/events/{eventId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(void), 200)]
+        public async Task<IActionResult> Update([FromRoute]string objectId, [FromRoute]string eventId,
+            [FromBody] UpdateObjectEventViewModel request)
+        {
+            if (request == null) 
+                return BadRequest();
+
+            var updateCommand = new UpdateObjectEventCommand(objectId, eventId)
+            {
+                Name = request.Name,
+                Description = request.Description,
+                OccuredAt = request.OccuredAt ?? DateTime.UtcNow
+            };
+
+            await _objectsRepository.UpdateObjectEvent(updateCommand, CancellationToken.None);
+
+            return Ok();
+        }
+        
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
         /// <summary>
         /// List object events
