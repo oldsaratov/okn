@@ -19,6 +19,13 @@ namespace OKN.WebApp.Controllers
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/versions
+        /// <summary>
+        /// List object versions by object Id
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="perPage"></param>
+        /// <param name="objectId"></param>
+        /// <returns></returns>
         [HttpGet("{objectId}/versions")]
         [ProducesResponseType(typeof(List<VersionInfo>), 200)]
         public async Task<IActionResult> ListVersions([FromQuery]int? page,
@@ -38,6 +45,12 @@ namespace OKN.WebApp.Controllers
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/versions/1
+        /// <summary>
+        /// Get object version by object Id and version Id
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
         [HttpGet("{objectId}/versions/{version}")]
         [ProducesResponseType(typeof(OknObject), 200)]
         public async Task<IActionResult> GetVersion([FromRoute]string objectId, [FromRoute] long version)

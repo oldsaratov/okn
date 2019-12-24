@@ -25,6 +25,12 @@ namespace OKN.WebApp.Controllers
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Update object by Id
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("{objectId}")]
         [Authorize]
         [ProducesResponseType(typeof(void), 200)]
@@ -61,6 +67,11 @@ namespace OKN.WebApp.Controllers
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Get object by Id
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <returns></returns>
         [HttpGet("{objectId}")]
         [ProducesResponseType(typeof(OknObject), 200)]
         public async Task<IActionResult> Get([FromRoute]string objectId)
@@ -74,6 +85,13 @@ namespace OKN.WebApp.Controllers
         }
 
         // GET api/objects
+        /// <summary>
+        /// Get object list by params
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="perPage"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<OknObject>), 200)]
         public async Task<IActionResult> List([FromQuery]int? page,

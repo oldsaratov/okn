@@ -25,6 +25,12 @@ namespace OKN.WebApp.Controllers
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
+        /// <summary>
+        /// Create event for object
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("{objectId}/events")]
         [Authorize]
         [ProducesResponseType(typeof(void), 200)]
@@ -54,6 +60,13 @@ namespace OKN.WebApp.Controllers
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
+        /// <summary>
+        /// List object events
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="perPage"></param>
+        /// <param name="objectId"></param>
+        /// <returns></returns>
         [HttpGet("{objectId}/events")]
         [ProducesResponseType(typeof(List<OKNObjectEvent>), 200)]
         public async Task<IActionResult> ListEvents([FromQuery]int? page,
@@ -73,6 +86,12 @@ namespace OKN.WebApp.Controllers
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Get event by object Id and event Id
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpGet("{objectId}/events/{eventId}")]
         [ProducesResponseType(typeof(OKNObjectEvent), 200)]
         public async Task<IActionResult> GetEvent([FromRoute]string objectId, [FromRoute] string eventId)

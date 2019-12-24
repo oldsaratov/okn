@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OKN.Core;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
+using System.IO;
 using MongoDB.Driver;
 using System.Reflection;
 
@@ -59,7 +60,17 @@ namespace OKN.WebApp
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = $"OKN API", Version = v.ToString(), Description = $"Build Number: {b}" });
+                c.SwaggerDoc("v1", new Info
+                {
+                    Title = $"OKN API", 
+                    Version = v.ToString(), 
+                    Description = $"Build Number: {b}"
+                });
+                
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            
+                c.IncludeXmlComments(xmlPath);
             });
 
             CoreContainer.Init(services);
