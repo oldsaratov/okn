@@ -2,7 +2,7 @@
 
 namespace OKN.Core.Models.Queries
 {
-    public class ListObjectEventsQuery : PagedQuery, IQuery<PagedList<OKNObjectEvent>>
+    public class ListObjectEventsQuery : PagedQuery, IQuery<PagedList<OknObjectEvent>>
     {
         public string ObjectId { get; set; }
     }

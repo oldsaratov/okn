@@ -46,11 +46,22 @@ namespace OKN.WebApp.Controllers
                 Name = request.Name,
                 Description = request.Description,
                 OccuredAt = request.OccuredAt ?? DateTime.UtcNow,
-
-                UserId = long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)),
-                UserName = currentUser.FindFirstValue(ClaimTypes.Name),
-                Email = currentUser.FindFirstValue(ClaimTypes.Email)
+                Files = request.Files?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList(),
+                Photos = request.Photos?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList()
             };
+
+            updateCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(), 
+                currentUser.FindFirstValue(ClaimTypes.Name), 
+                currentUser.FindFirstValue(ClaimTypes.Email));
 
             await _objectsRepository.CreateObjectEvent(updateCommand, CancellationToken.None);
 
@@ -73,13 +84,30 @@ namespace OKN.WebApp.Controllers
         {
             if (request == null) 
                 return BadRequest();
+            
+            var currentUser = HttpContext.User;
 
             var updateCommand = new UpdateObjectEventCommand(objectId, eventId)
             {
                 Name = request.Name,
                 Description = request.Description,
-                OccuredAt = request.OccuredAt ?? DateTime.UtcNow
+                OccuredAt = request.OccuredAt ?? DateTime.UtcNow,
+                Files = request.Files?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList(),
+                Photos = request.Photos?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList()
             };
+            
+            updateCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(), 
+                currentUser.FindFirstValue(ClaimTypes.Name), 
+                currentUser.FindFirstValue(ClaimTypes.Email));
 
             await _objectsRepository.UpdateObjectEvent(updateCommand, CancellationToken.None);
 
@@ -95,7 +123,7 @@ namespace OKN.WebApp.Controllers
         /// <param name="objectId"></param>
         /// <returns></returns>
         [HttpGet("{objectId}/events")]
-        [ProducesResponseType(typeof(List<OKNObjectEvent>), 200)]
+        [ProducesResponseType(typeof(List<OknObjectEvent>), 200)]
         public async Task<IActionResult> ListEvents([FromQuery]int? page,
             [FromQuery]int? perPage, [FromRoute]string objectId)
         {
@@ -107,7 +135,7 @@ namespace OKN.WebApp.Controllers
             }, CancellationToken.None);
 
             if (model == null)
-                return Ok(Array.Empty<OKNObjectEvent>());
+                return Ok(Array.Empty<OknObjectEvent>());
 
             return Ok(model);
         }
@@ -120,7 +148,7 @@ namespace OKN.WebApp.Controllers
         /// <param name="eventId"></param>
         /// <returns></returns>
         [HttpGet("{objectId}/events/{eventId}")]
-        [ProducesResponseType(typeof(OKNObjectEvent), 200)]
+        [ProducesResponseType(typeof(OknObjectEvent), 200)]
         public async Task<IActionResult> GetEvent([FromRoute]string objectId, [FromRoute] string eventId)
         {
             var model = await _objectsRepository.GetEvent(new ObjectEventQuery(objectId, eventId), CancellationToken.None);

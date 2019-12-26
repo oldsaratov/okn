@@ -2,7 +2,7 @@ using EventFlow.Queries;
 
 namespace OKN.Core.Models.Queries
 {
-    public class ObjectEventQuery : IQuery<OKNObjectEvent>
+    public class ObjectEventQuery : IQuery<OknObjectEvent>
     {
         public ObjectEventQuery(string objectId, string eventId)
         {

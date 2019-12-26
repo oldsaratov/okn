@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace OKN.Core.Models.Entities
@@ -30,31 +29,13 @@ namespace OKN.Core.Models.Entities
 
         [BsonElement("events")]
         public List<ObjectEventEntity> Events { get; set; }
+        
+        [BsonElement("mainPhoto")]
+        public FileEntity MainPhoto { get; set; }
+        
+        [BsonElement("photos")]
+        public List<FileEntity> Photos { get; set; }
 
         public ObjectEntity() { }
-    }
-
-    public class VersionInfoEntity
-    {
-        [BsonElement("versionId")]
-        public long VersionId { get; set; }
-        
-        [BsonElement("createdAt")]
-        public BsonDateTime CreateDate { get; set; }
-        
-        [BsonElement("createdBy")]
-        public UserInfoEntity Author { get; set; }
-    }
-
-    public class UserInfoEntity
-    {
-        [BsonElement("id")]
-        public long Id { get; set; }
-
-        [BsonElement("name")]
-        public string UserName { get; set; }
-
-        [BsonElement("email")]
-        public string Email { get; set; }
     }
 }

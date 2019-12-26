@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OKN.Core.Identity;
+using OKN.Core.Models;
+using OKN.Core.Models.Commands;
+using OKN.Core.Models.Queries;
+using OKN.Core.Repositories;
+using OKN.WebApp.Models.Objects;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using OKN.Core.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using OKN.Core.Identity;
-using OKN.Core.Models.Queries;
-using OKN.WebApp.Models.Objects;
-using OKN.Core.Models.Commands;
-using OKN.Core.Repositories;
 
 namespace OKN.WebApp.Controllers
 {
@@ -34,16 +33,18 @@ namespace OKN.WebApp.Controllers
         [HttpPost("{objectId}")]
         [Authorize]
         [ProducesResponseType(typeof(void), 200)]
-        public async Task<IActionResult> Update([FromRoute]string objectId,
-                                                [FromBody] UpdateObjectViewModel request)
+        public async Task<IActionResult> Update([FromRoute] string objectId,
+            [FromBody] UpdateObjectViewModel request)
         {
-            if (request == null) return BadRequest();
+            if (request == null)
+                return BadRequest();
 
             var objectQuery = new ObjectQuery(objectId);
 
             var current = await _objectsRepository.GetObject(objectQuery, CancellationToken.None);
 
-            if (current == null) return NotFound();
+            if (current == null)
+                return NotFound();
 
             var currentUser = HttpContext.User;
 
@@ -55,11 +56,22 @@ namespace OKN.WebApp.Controllers
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
                 Type = request.Type,
-
-                UserId = long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)),
-                UserName = currentUser.FindFirstValue(ClaimTypes.Name),
-                Email = currentUser.FindFirstValue(ClaimTypes.Email)
+                MainPhoto = new FileInfo
+                {
+                    FileId = request.MainPhoto.FileId,
+                    Description = request.MainPhoto.Description
+                },
+                Photos = request.Photos.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList()
             };
+
+            updateCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
+                currentUser.FindFirstValue(ClaimTypes.Email));
 
             await _objectsRepository.UpdateObject(updateCommand, CancellationToken.None);
 
@@ -74,7 +86,7 @@ namespace OKN.WebApp.Controllers
         /// <returns></returns>
         [HttpGet("{objectId}")]
         [ProducesResponseType(typeof(OknObject), 200)]
-        public async Task<IActionResult> Get([FromRoute]string objectId)
+        public async Task<IActionResult> Get([FromRoute] string objectId)
         {
             var model = await _objectsRepository.GetObject(new ObjectQuery(objectId), CancellationToken.None);
 
@@ -93,9 +105,9 @@ namespace OKN.WebApp.Controllers
         /// <param name="types"></param>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(List<OknObject>), 200)]
-        public async Task<IActionResult> List([FromQuery]int? page,
-                                              [FromQuery]int? perPage, [FromQuery] string types)
+        [ProducesResponseType(typeof(PagedList<OknObject>), 200)]
+        public async Task<IActionResult> List([FromQuery] int? page,
+            [FromQuery] int? perPage, [FromQuery] string types)
         {
             var query = new ListObjectsQuery
             {

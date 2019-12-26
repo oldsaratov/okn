@@ -62,11 +62,6 @@ namespace OKN.Core.Repositories
                 }
             }
 
-            if (entity == null)
-            {
-                throw new ObjectNotExistException("Object with this id doesn't exist");
-            }
-
             if (entity != null)
             {
                 var model = _mapper.Map<ObjectEntity, OknObject>(entity);
@@ -76,7 +71,7 @@ namespace OKN.Core.Repositories
             return null;
         }
 
-        public async Task<OKNObjectEvent> GetEvent(ObjectEventQuery query, CancellationToken cancellationToken)
+        public async Task<OknObjectEvent> GetEvent(ObjectEventQuery query, CancellationToken cancellationToken)
         {
             var filter = Builders<ObjectEntity>.Filter.Where(x => x.ObjectId == query.ObjectId);
 
@@ -84,9 +79,9 @@ namespace OKN.Core.Repositories
                 .Find(filter)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            var evnt = entity?.Events.FirstOrDefault(x => x.EventId == query.EventId);
+            var evnt = entity?.Events?.FirstOrDefault(x => x.EventId == query.EventId);
 
-            return evnt != null ? _mapper.Map<ObjectEventEntity, OKNObjectEvent>(evnt) : null;
+            return evnt != null ? _mapper.Map<ObjectEventEntity, OknObjectEvent>(evnt) : null;
         }
 
         public async Task<PagedList<VersionInfo>> GetVersions(ListVersionsQuery query, CancellationToken cancellationToken)
@@ -143,7 +138,7 @@ namespace OKN.Core.Repositories
             return paged;
         }
 
-        public async Task<PagedList<OKNObjectEvent>> GetObjectEvents(ListObjectEventsQuery query, CancellationToken cancellationToken)
+        public async Task<PagedList<OknObjectEvent>> GetObjectEvents(ListObjectEventsQuery query, CancellationToken cancellationToken)
         {
             var filter = Builders<ObjectEntity>.Filter.Where(x => x.ObjectId == query.ObjectId);
 
@@ -155,9 +150,9 @@ namespace OKN.Core.Repositories
                 .Skip((query.Page - 1) * query.PerPage)
                 .Take(query.PerPage).ToList();
 
-            var model = _mapper.Map<List<ObjectEventEntity>, List<OKNObjectEvent>>(items);
+            var model = _mapper.Map<List<ObjectEventEntity>, List<OknObjectEvent>>(items);
 
-            var paged = new PagedList<OKNObjectEvent>
+            var paged = new PagedList<OknObjectEvent>
             {
                 Data = model,
                 Page = query.Page,
@@ -166,33 +161,6 @@ namespace OKN.Core.Repositories
             };
 
             return paged;
-        }
-
-        public async Task<OknObject> UpdateObjectEvent(UpdateObjectEventCommand command, CancellationToken cancellationToken)
-        {
-            var filter = Builders<ObjectEntity>.Filter.Where(x => x.ObjectId == command.ObjectId);
-            var originalEntity = await _context.Objects
-                .Find(filter)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (originalEntity == null)
-            {
-                throw new ObjectEventNotExistException("Object with this id doesn't exist");
-            }
-
-            var objectEvent = originalEntity.Events.FirstOrDefault(x => x.EventId == command.EventId);
-            if (objectEvent == null)
-            {
-                throw new ObjectEventNotExistException("Object event with this id doesn't exist");
-            }
-            
-            objectEvent.Name = command.Name;
-            objectEvent.Description = command.Description;
-            objectEvent.OccuredAt = command.OccuredAt;
-
-            var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
-
-            return null;
         }
 
         public async Task UpdateObject(UpdateObjectCommand command, CancellationToken cancellationToken)
@@ -224,10 +192,22 @@ namespace OKN.Core.Repositories
                     Author = new UserInfoEntity
                     {
                         Email = command.Email,
-                        UserName = command.Name,
-                        Id = command.UserId
+                        UserName = command.UserName,
+                        UserId = command.UserId
                     }
                 },
+                MainPhoto = new FileEntity
+                {
+                    FileId = command.MainPhoto?.FileId,
+                    Url = command.MainPhoto?.Url,
+                    Description = command.MainPhoto?.Description,
+                },
+                Photos = command.Photos?.Select(x =>  new FileEntity
+                {
+                    FileId = x.FileId,
+                    Url = x.Url,
+                    Description = x.Description,
+                }).ToList(),
                 Events = originalEntity.Events,
                 ObjectId = originalEntity.ObjectId,
             };
@@ -256,15 +236,68 @@ namespace OKN.Core.Repositories
                 Author = new UserInfoEntity
                 {
                     Email = command.Email,
-                    UserName = command.Name,
-                    Id = command.UserId
-                }
+                    UserName = command.UserName,
+                    UserId = command.UserId
+                },
+                Photos = command.Photos?.Select(x => new FileEntity
+                {
+                    FileId = x.FileId,
+                    Url = x.Url,
+                    Description = x.Description,
+                }).ToList(),
+                Files = command.Files?.Select(x => new FileEntity
+                {
+                    FileId = x.FileId,
+                    Url = x.Url,
+                    Description = x.Description,
+                }).ToList()
             };
 
             if (originalEntity.Events == null)
                 originalEntity.Events = new List<ObjectEventEntity>();
 
             originalEntity.Events.Add(entity);
+
+            var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
+         
+            return null;
+        }
+
+        public async Task<OknObject> UpdateObjectEvent(UpdateObjectEventCommand command, CancellationToken cancellationToken)
+        {
+            var filter = Builders<ObjectEntity>.Filter.Where(x => x.ObjectId == command.ObjectId);
+            var originalEntity = await _context.Objects
+                .Find(filter)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (originalEntity == null)
+            {
+                throw new ObjectEventNotExistException("Object with this id doesn't exist");
+            }
+
+            var objectEvent = originalEntity.Events.FirstOrDefault(x => x.EventId == command.EventId);
+            if (objectEvent == null)
+            {
+                throw new ObjectEventNotExistException("Object event with this id doesn't exist");
+            }
+            
+            objectEvent.Name = command.Name;
+            objectEvent.Description = command.Description;
+            objectEvent.OccuredAt = command.OccuredAt;
+
+            objectEvent.Photos = command.Photos?.Select(x => new FileEntity
+            {
+                FileId = x.FileId,
+                Url = x.Url,
+                Description = x.Description,
+            }).ToList();
+
+            objectEvent.Files = command.Files?.Select(x => new FileEntity
+            {
+                FileId = x.FileId,
+                Url = x.Url,
+                Description = x.Description,
+            }).ToList();
 
             var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
 

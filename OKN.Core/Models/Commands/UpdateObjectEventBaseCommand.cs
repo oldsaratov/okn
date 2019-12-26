@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 
 namespace OKN.Core.Models.Commands
 {
-    public class UpdateObjectEventCommand
+    public class UpdateObjectEventCommand : BaseCommandWithInitiator
     {
         public UpdateObjectEventCommand(string objectId, string eventId)
         {
@@ -19,5 +20,9 @@ namespace OKN.Core.Models.Commands
         public string Description { get; set; }
 
         public DateTime OccuredAt { get; set; }
+        
+        public List<FileInfo> Photos { get; set; }
+        
+        public List<FileInfo> Files { get; set; }
     }
 }

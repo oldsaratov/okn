@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -20,6 +21,12 @@ namespace OKN.Core.Models.Entities
         
         [BsonElement("createdBy")]
         public UserInfoEntity Author { get; set; }
+
+        [BsonElement("photos")]
+        public List<FileEntity> Photos { get; set; }
+        
+        [BsonElement("files")]
+        public List<FileEntity> Files { get; set; }
 
         public ObjectEventEntity() { }
     }

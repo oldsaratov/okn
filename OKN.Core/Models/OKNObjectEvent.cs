@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace OKN.Core.Models
 {
-    public class OKNObjectEvent
+    public class OknObjectEvent
     {
         [JsonProperty("eventId")]
         public string EventId { get; set; }
@@ -19,5 +20,11 @@ namespace OKN.Core.Models
 
         [JsonProperty("createdBy")]
         public UserInfo Author { get; set; }
+        
+        [JsonProperty("photos")]
+        public List<FileInfo> Photos { get; set; }
+        
+        [JsonProperty("files")]
+        public List<FileInfo> Files { get; set; }
     }
 }

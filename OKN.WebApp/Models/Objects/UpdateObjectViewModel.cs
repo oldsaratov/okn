@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using OKN.Core.Models;
 
 namespace OKN.WebApp.Models.Objects
@@ -19,5 +20,11 @@ namespace OKN.WebApp.Models.Objects
         
 	    [JsonProperty("type")]
 	    public EObjectType Type { get; set; }
+	    
+	    [JsonProperty("mainPhoto")]
+	    public FileInfoViewModel MainPhoto { get; set; }
+        
+	    [JsonProperty("photos")]
+	    public List<FileInfoViewModel> Photos { get; set; }
     }
 }

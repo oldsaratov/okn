@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OKN.Core.Models.Commands
 {
-    public class CreateObjectEventCommand
+    public class CreateObjectEventCommand : BaseCommandWithInitiator
     {
         public CreateObjectEventCommand(string objectId, string eventId)
         {
             ObjectId = objectId;
             EventId = eventId;
+            
+            Files = new List<FileInfo>();
+            Photos = new List<FileInfo>();
         }
         
         public string ObjectId { get; }
@@ -19,9 +23,10 @@ namespace OKN.Core.Models.Commands
         public string Description { get; set; }
 
         public DateTime OccuredAt { get; set; }
-	    
-	    public long UserId { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
+
+        public List<FileInfo> Photos { get; set; }
+        
+        public List<FileInfo> Files { get; set; }
+
     }
 }

@@ -96,7 +96,8 @@ namespace OKN.WebApp
             app.UseRouting();
 
             app.UseAuthentication();
-            
+            app.UseAuthorization();
+
             app.UseCors("CorsPolicy");
             
             app.UseEndpoints(endpoints =>

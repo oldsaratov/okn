@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace OKN.WebApp.Models.ObjectEvents
@@ -13,5 +14,11 @@ namespace OKN.WebApp.Models.ObjectEvents
 
         [JsonProperty("occuredAt")]
         public DateTime? OccuredAt { get; set; }
+        
+        [JsonProperty("files")]
+        public List<FileInfoViewModel> Files { get; set; }
+        
+        [JsonProperty("photos")]
+        public List<FileInfoViewModel> Photos { get; set; }
     }
 }
