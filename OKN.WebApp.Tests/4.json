@@ -1,8 +1,8 @@
 {
   "description": "UPDATED TEST DESCRIPTION",
   "name": "UPDATED TEST",
-  "latitude": 25.5391153,
-  "longitude": 35.0091007,
+  "latitude": 51.5391153,
+  "longitude": 46.0091007,
   "type": 2,
   "mainPhoto": {
     "fileId": "fid",

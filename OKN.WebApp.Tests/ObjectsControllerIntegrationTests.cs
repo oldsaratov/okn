@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using OKN.Core.Models;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
@@ -22,7 +21,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_object()
         {
-            _factory.runner.Import("okn", "objects", "1.json", true);
+            _factory.Runner.Import("okn", "objects", "1.json", true);
 
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects/5af2796e32522f798f822a41");
@@ -45,7 +44,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_invalid_object_return_404()
         {
-            _factory.runner.Import("okn", "objects", "1.json", true);
+            _factory.Runner.Import("okn", "objects", "1.json", true);
 
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects/5af2796e32");
@@ -57,7 +56,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_list_of_object()
         {
-            _factory.runner.Import("okn", "objects", "3.json", true);
+            _factory.Runner.Import("okn", "objects", "3.json", true);
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects");
 
@@ -77,7 +76,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_list_of_object_with_paging()
         {
-            _factory.runner.Import("okn", "objects", "3.json", true);
+            _factory.Runner.Import("okn", "objects", "3.json", true);
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects?page=2&perPage=2");
 
