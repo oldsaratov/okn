@@ -1,6 +1,10 @@
 using Newtonsoft.Json;
 using OKN.Core.Models;
+using System.Globalization;
+using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -21,7 +25,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_object()
         {
-            _factory.Runner.Import("okn", "objects", "1.json", true);
+            _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
 
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects/5af2796e32522f798f822a41");
@@ -44,7 +48,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_invalid_object_return_404()
         {
-            _factory.Runner.Import("okn", "objects", "1.json", true);
+            _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
 
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects/5af2796e32");
@@ -56,7 +60,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_list_of_object()
         {
-            _factory.Runner.Import("okn", "objects", "3.json", true);
+            _factory.Runner.Import("okn", "objects", "Data/many_records.json", true);
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects");
 
@@ -76,7 +80,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_list_of_object_with_paging()
         {
-            _factory.Runner.Import("okn", "objects", "3.json", true);
+            _factory.Runner.Import("okn", "objects", "Data/many_records.json", true);
             // The endpoint or route of the controller action.
             var httpResponse = await _client.GetAsync("/api/objects?page=2&perPage=2");
 
@@ -92,6 +96,64 @@ namespace OKN.WebApp.Tests
             Assert.NotEmpty(objects.Data);
             Assert.Equal(2, objects.Data.Count);
             Assert.Equal(9, objects.Total);
+        }
+    }
+    
+    public class ObjectsControllerWithAuthIntegrationTests : IClassFixture<CustomWebApplicationFactoryWithAuth<Startup>>
+    {
+        private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactoryWithAuth<Startup> _factory;
+
+        public ObjectsControllerWithAuthIntegrationTests(CustomWebApplicationFactoryWithAuth<Startup> factory)
+        {
+            _client = factory.CreateClient();
+
+            _factory = factory;
+        }
+
+        [Fact]
+        public async Task update_object()
+        {
+            _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
+
+            var content = new StringContent(File.ReadAllText("Data/update_request_with_photos.json"), Encoding.UTF8, "application/json");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+
+            // The endpoint or route of the controller action.
+            var httpResponse = await _client.PostAsync("/api/objects/5af2796e32522f798f822a41", content);
+
+            // Must be successful.
+            httpResponse.EnsureSuccessStatusCode();
+
+            // The endpoint or route of the controller action.
+            var httpResponse1 = await _client.GetAsync("/api/objects/5af2796e32522f798f822a41");
+            httpResponse1.EnsureSuccessStatusCode();
+            var stringResponse = await httpResponse1.Content.ReadAsStringAsync();
+            var obj = JsonConvert.DeserializeObject<OknObject>(stringResponse);
+
+            Assert.Equal("5af2796e32522f798f822a41", obj.ObjectId);
+            Assert.Equal("UPDATED TEST", obj.Name);
+            Assert.Equal("UPDATED TEST DESCRIPTION", obj.Description);
+            Assert.Equal("51.5391153", obj.Latitude.ToString(new CultureInfo("en-us")));
+            Assert.Equal("46.0091007", obj.Longitude.ToString(new CultureInfo("en-us")));
+            Assert.Equal(EObjectType.Regional, obj.Type);
+
+            ValidateVersion(obj.Version);
+        }
+
+        private void ValidateVersion(VersionInfo version)
+        {
+            Assert.NotNull(version);
+            Assert.Equal(1, version.VersionId);
+
+            ValidateUser(version.Author);
+        }
+
+        private void ValidateUser(UserInfo versionAuthor)
+        {
+            Assert.Equal("1", versionAuthor.UserId);
+            Assert.Equal("TestUser", versionAuthor.UserName);
+            Assert.Equal("test@test.com", versionAuthor.Email);
         }
     }
 }

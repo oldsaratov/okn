@@ -1,0 +1,9 @@
+{
+  "_id": { "$oid": "5af2796e32522f798f822a41" },
+  "description": "TEST DESCRIPTION",
+  "name": "TEST",
+  "latitude": 51.5391153,
+  "longitude": 46.0091007,
+  "type": 1,
+  "objectId": "5af2796e32522f798f822a41"
+}

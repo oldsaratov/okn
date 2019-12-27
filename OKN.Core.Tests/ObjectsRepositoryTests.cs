@@ -1,96 +1,90 @@
+using System;
 using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Mongo2Go;
-using OKN.Core.Exceptions;
 using OKN.Core.Models.Queries;
 using OKN.Core.Repositories;
 using Xunit;
 
 namespace OKN.Core.Tests
 {
-    public class ObjectsRepositoryTests
+    public class ObjectsRepositoryTests : IDisposable
     {
+        private readonly ObjectsRepository repo;
+        private readonly MongoDbRunner runner;
+
+        public ObjectsRepositoryTests()
+        {
+            runner = MongoDbRunner.Start();
+            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
+
+            repo = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
+        }
+
         [Fact]
         public async Task GetSingleObject()
         {
-            var runner = MongoDbRunner.Start();
-            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
-
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "1.json");
             runner.Import("okn", "objects", path, true);
-
-            var repo = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
 
             var query = new ObjectQuery("5af2796e32522f798f822a41");
 
             var result = await repo.GetObject(query, CancellationToken.None);
             Assert.NotNull(result);
             Assert.Equal(query.ObjectId, result.ObjectId);
-
-            runner.Dispose();
         }
-        
+
         [Fact]
         public async Task GetObjectThatNotExist()
         {
-            var runner = MongoDbRunner.Start();
-            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
-
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "1.json");
             runner.Import("okn", "objects", path, true);
-            
-            var repo = new ObjectsRepository(null, new DbContext(database));
 
             var query = new ObjectQuery("5af2796e32522f798f825642a41");
 
-            await Assert.ThrowsAsync<ObjectNotExistException>(() => repo.GetObject(query, CancellationToken.None));
+            var obj = await repo.GetObject(query, CancellationToken.None);
 
-            runner.Dispose();
+            Assert.Null(obj);
         }
 
         [Fact]
         public async Task GetObjectLatestVersion()
         {
-            var runner = MongoDbRunner.Start();
-            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
-
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "2.json");
-            runner.Import("okn", "objects", path, true);
-
-            var repo = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
+            var path1 = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "single_record.json");
+            runner.Import("okn", "objects", path1, true);
+            var path2 = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "record_versions.json");
+            runner.Import("okn", "objects_versions", path2, true);
 
             var query = new ObjectQuery("5af2796e32522f798f822a41");
 
             var result = await repo.GetObject(query, CancellationToken.None);
             Assert.NotNull(result);
             Assert.Equal(query.ObjectId, result.ObjectId);
-            Assert.Equal(2, result.Version.VersionId);
-            Assert.Equal("VERSION2", result.Name);
-
-            runner.Dispose();
+            Assert.Equal(3, result.Version.VersionId);
+            Assert.Equal("VESION3", result.Name);
         }
 
         [Fact]
         public async Task GetObjectPreviousVersion()
         {
-            var runner = MongoDbRunner.Start();
-            var database = TestHelpers.GetDefaultDatabase(runner.ConnectionString);
+            var path1 = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "single_record.json");
+            runner.Import("okn", "objects", path1, true);
+            var path2 = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "record_versions.json");
+            runner.Import("okn", "objects_versions", path2, true);
 
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "2.json");
-            runner.Import("okn", "objects", path, true);
-
-            var repo = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
-
-            var query = new ObjectQuery("5af2796e32522f798f822a41", 1);
+            var query = new ObjectQuery("5af2796e32522f798f822a41", version: 1);
 
             var result = await repo.GetObject(query, CancellationToken.None);
             Assert.NotNull(result);
             Assert.Equal(query.ObjectId, result.ObjectId);
             Assert.Equal(1, result.Version.VersionId);
             Assert.Equal("VERSION1", result.Name);
+        }
 
+        public void Dispose()
+        {
             runner.Dispose();
         }
     }

@@ -39,7 +39,7 @@ namespace OKN.WebApp
                         .AllowAnyHeader());
             });
 
-            services.AddMvc();
+            services.AddMvc().AddNewtonsoftJson();
             
             ConfigureMongo(services);
 
@@ -99,7 +99,7 @@ namespace OKN.WebApp
             app.UseAuthorization();
 
             app.UseCors("CorsPolicy");
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
