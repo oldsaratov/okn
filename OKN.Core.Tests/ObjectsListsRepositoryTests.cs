@@ -23,11 +23,7 @@ namespace OKN.Core.Tests
 
             var handler = new ObjectsRepository(TestHelpers.GetDefaultMapper(), new DbContext(database));
 
-            var query = new ListObjectsQuery
-            {
-                Page = 2,
-                PerPage = 5
-            };
+            var query = new ListObjectsQuery(page: 2, perPage: 5);
 
             var result = await handler.GetObjects(query, CancellationToken.None);
             Assert.NotNull(result);

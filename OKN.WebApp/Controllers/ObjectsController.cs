@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OKN.Core.Identity;
 using OKN.Core.Models;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
@@ -48,9 +47,8 @@ namespace OKN.WebApp.Controllers
 
             var currentUser = HttpContext.User;
 
-            var updateCommand = new UpdateObjectCommand(new ObjectId(objectId))
+            var updateCommand = new UpdateObjectCommand(objectId)
             {
-                ObjectId = objectId,
                 Name = request.Name,
                 Description = request.Description,
                 Latitude = request.Latitude,
@@ -110,10 +108,8 @@ namespace OKN.WebApp.Controllers
         public async Task<IActionResult> List([FromQuery] int? page,
             [FromQuery] int? perPage, [FromQuery] string types, [FromQuery] string name)
         {
-            var query = new ListObjectsQuery
+            var query = new ListObjectsQuery(page, perPage)
             {
-                Page = page ?? 1,
-                PerPage = perPage ?? DefaultPerPage,
                 NameToken = name
             };
 

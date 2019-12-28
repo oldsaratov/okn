@@ -1,5 +1,4 @@
 using AutoMapper;
-using OKN.Core.Identity;
 using OKN.Core.Mappings;
 using OKN.Core.Models.Commands;
 using System.IO;
@@ -26,7 +25,7 @@ namespace OKN.Core.Tests
             
             var repo = new ObjectsRepository(null, new DbContext(database));
             
-            var command = new UpdateObjectCommand(new ObjectId("5af27196e32522f798f822a41"));
+            var command = new UpdateObjectCommand("5af27196e32522f798f822a41");
 
             await Assert.ThrowsAsync<ObjectNotExistException>(() => repo.UpdateObject(command, CancellationToken.None));
         }
@@ -45,7 +44,7 @@ namespace OKN.Core.Tests
             
             var repo = new ObjectsRepository(mapper, new DbContext(database));
 
-            var command = new UpdateObjectCommand(new ObjectId("5af2796e32522f798f822a41"))
+            var command = new UpdateObjectCommand("5af2796e32522f798f822a41")
             {
                 Name = "TEST1"
             };

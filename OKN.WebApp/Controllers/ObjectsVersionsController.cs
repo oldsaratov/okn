@@ -31,12 +31,7 @@ namespace OKN.WebApp.Controllers
         public async Task<IActionResult> ListVersions([FromQuery]int? page,
             [FromQuery]int? perPage, [FromRoute]string objectId)
         {
-            var model = await _objectsRepository.GetVersions(new ListVersionsQuery
-            {
-                ObjectId = objectId,
-                Page = page ?? 1,
-                PerPage = perPage ?? DefaultPerPage
-            }, CancellationToken.None);
+            var model = await _objectsRepository.GetVersions(new ListVersionsQuery(objectId, page, perPage), CancellationToken.None);
 
             if (model == null)
                 return NotFound();

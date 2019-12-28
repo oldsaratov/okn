@@ -10,8 +10,8 @@ namespace OKN.Core.Models.Queries
             EventId = eventId;
         }
 
-        public string ObjectId { get; set; }
+        public string ObjectId { get; }
 
-        public string EventId { get; set; }
+        public string EventId { get; }
     }
 }

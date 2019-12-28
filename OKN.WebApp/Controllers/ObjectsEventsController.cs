@@ -59,8 +59,8 @@ namespace OKN.WebApp.Controllers
             };
 
             updateCommand.SetCreator(
-                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(), 
-                currentUser.FindFirstValue(ClaimTypes.Name), 
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
                 currentUser.FindFirstValue(ClaimTypes.Email));
 
             await _objectsRepository.CreateObjectEvent(updateCommand, CancellationToken.None);
@@ -82,9 +82,9 @@ namespace OKN.WebApp.Controllers
         public async Task<IActionResult> Update([FromRoute]string objectId, [FromRoute]string eventId,
             [FromBody] UpdateObjectEventViewModel request)
         {
-            if (request == null) 
+            if (request == null)
                 return BadRequest();
-            
+
             var currentUser = HttpContext.User;
 
             var updateCommand = new UpdateObjectEventCommand(objectId, eventId)
@@ -103,17 +103,17 @@ namespace OKN.WebApp.Controllers
                     Description = x.Description
                 }).ToList()
             };
-            
+
             updateCommand.SetCreator(
-                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(), 
-                currentUser.FindFirstValue(ClaimTypes.Name), 
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
                 currentUser.FindFirstValue(ClaimTypes.Email));
 
             await _objectsRepository.UpdateObjectEvent(updateCommand, CancellationToken.None);
 
             return Ok();
         }
-        
+
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
         /// <summary>
         /// List object events
@@ -127,12 +127,7 @@ namespace OKN.WebApp.Controllers
         public async Task<IActionResult> ListEvents([FromQuery]int? page,
             [FromQuery]int? perPage, [FromRoute]string objectId)
         {
-            var model = await _objectsRepository.GetObjectEvents(new ListObjectEventsQuery
-            {
-                ObjectId = objectId,
-                Page = page ?? 1,
-                PerPage = perPage ?? DefaultPerPage
-            }, CancellationToken.None);
+            var model = await _objectsRepository.GetObjectEvents(new ListObjectEventsQuery(objectId, page, perPage), CancellationToken.None);
 
             if (model == null)
                 return Ok(Array.Empty<OknObjectEvent>());

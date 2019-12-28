@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using OKN.Core.Identity;
 
 namespace OKN.Core.Models.Commands
 {
     public class UpdateObjectCommand : BaseCommandWithInitiator
     {
-		public string ObjectId { get; set; }
+		public string ObjectId { get; }
 		public string Name { get; set; }
 		public string Description { get; set; }
 	    public decimal Latitude { get; set; }
@@ -17,9 +16,9 @@ namespace OKN.Core.Models.Commands
         
         public List<FileInfo> Photos { get; set; }
 
-        public UpdateObjectCommand(ObjectId objectId)
+        public UpdateObjectCommand(string objectId)
         {
-            ObjectId = objectId.Value;
+            ObjectId = objectId;
         }
     }
 }
