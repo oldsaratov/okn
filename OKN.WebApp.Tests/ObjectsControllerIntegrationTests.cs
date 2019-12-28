@@ -40,8 +40,8 @@ namespace OKN.WebApp.Tests
             Assert.Equal("5af2796e32522f798f822a41", obj.ObjectId);
             Assert.Equal("TEST", obj.Name);
             Assert.Equal("TEST DESCRIPTION", obj.Description);
-            Assert.Equal("51,5391153", obj.Latitude.ToString());
-            Assert.Equal("46,0091007", obj.Longitude.ToString());
+            Assert.Equal("51.5391153", obj.Latitude.ToString(new CultureInfo("en-US")));
+            Assert.Equal("46.0091007", obj.Longitude.ToString(new CultureInfo("en-US")));
             Assert.Equal(EObjectType.Federal, obj.Type);
         }
 
@@ -121,7 +121,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_list_of_object_with_filter()
         {
-            var nameToken = "здание";
+            var nameToken = "Р·РґР°РЅРёРµ";
             var types = new[] { (int)EObjectType.Municipal, (int)EObjectType.Regional };
 
             _factory.Runner.Import("okn", "objects", "Data/many_records.json", true);
