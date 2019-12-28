@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -183,27 +182,16 @@ namespace OKN.Core.Repositories
                 throw new ObjectNotExistException("Object with this id doesn't exist");
             }
 
-            //Put original entity to history table
-            await _context.ObjectVersions.InsertOneAsync(originalEntity, cancellationToken: cancellationToken);
+            SetObjectVersionIfNotExist(command, originalEntity);
 
-            var entity = new ObjectEntity
+            var newEntity = new ObjectEntity
             {
+                ObjectId = originalEntity.ObjectId,
                 Name = command.Name,
                 Description = command.Description,
                 Longitude = command.Longitude,
                 Latitude = command.Latitude,
                 Type = command.Type,
-                Version = new VersionInfoEntity
-                {
-                    VersionId = originalEntity.Version?.VersionId + 1 ?? 1,
-                    CreateDate = DateTime.UtcNow,
-                    Author = new UserInfoEntity
-                    {
-                        Email = command.Email,
-                        UserName = command.UserName,
-                        UserId = command.UserId
-                    }
-                },
                 MainPhoto = new FileEntity
                 {
                     FileId = command.MainPhoto?.FileId,
@@ -216,11 +204,26 @@ namespace OKN.Core.Repositories
                     Url = x.Url,
                     Description = x.Description,
                 }).ToList(),
-                Events = originalEntity.Events,
-                ObjectId = originalEntity.ObjectId,
+                Events = originalEntity.Events
             };
 
-            await _context.Objects.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+            await IncObjectVersion(command, originalEntity, newEntity, cancellationToken);
+            await _context.Objects.ReplaceOneAsync(filter, newEntity, cancellationToken: cancellationToken);
+        }
+
+        private async Task IncObjectVersion(BaseCommandWithInitiator command, ObjectEntity originalEntity, ObjectEntity newEntity, CancellationToken cancellationToken)
+        {
+            await _context.ObjectVersions.InsertOneAsync(originalEntity, cancellationToken: cancellationToken);
+
+            newEntity.Version = new VersionInfoEntity(originalEntity.Version.VersionId + 1, new UserInfoEntity(command.UserId, command.UserName, command.Email));
+        }
+
+        private static void SetObjectVersionIfNotExist(BaseCommandWithInitiator command, ObjectEntity originalEntity)
+        {
+            if (originalEntity.Version == null)
+            {
+                originalEntity.Version = new VersionInfoEntity(1, new UserInfoEntity(command.UserId, command.UserName, command.Email));
+            }
         }
 
         public async Task<OknObject> CreateObjectEvent(CreateObjectEventCommand command, CancellationToken cancellationToken)
@@ -235,18 +238,15 @@ namespace OKN.Core.Repositories
                 throw new ObjectEventNotExistException("Object event with this id doesn't exist");
             }
 
+            SetObjectVersionIfNotExist(command, originalEntity);
+
             var entity = new ObjectEventEntity
             {
                 EventId = command.EventId,
                 Name = command.Name,
                 Description = command.Description,
                 OccuredAt = command.OccuredAt,
-                Author = new UserInfoEntity
-                {
-                    Email = command.Email,
-                    UserName = command.UserName,
-                    UserId = command.UserId
-                },
+                Author = new UserInfoEntity(command.UserId, command.UserName, command.Email),
                 Photos = command.Photos?.Select(x => new FileEntity
                 {
                     FileId = x.FileId,
@@ -266,6 +266,7 @@ namespace OKN.Core.Repositories
 
             originalEntity.Events.Add(entity);
 
+            await IncObjectVersion(command, originalEntity, originalEntity, cancellationToken);
             var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
 
             return null;
@@ -289,6 +290,8 @@ namespace OKN.Core.Repositories
                 throw new ObjectEventNotExistException("Object event with this id doesn't exist");
             }
 
+            SetObjectVersionIfNotExist(command, originalEntity);
+
             objectEvent.Name = command.Name;
             objectEvent.Description = command.Description;
             objectEvent.OccuredAt = command.OccuredAt;
@@ -307,6 +310,7 @@ namespace OKN.Core.Repositories
                 Description = x.Description,
             }).ToList();
 
+            await IncObjectVersion(command, originalEntity, originalEntity, cancellationToken);
             var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
 
             return null;

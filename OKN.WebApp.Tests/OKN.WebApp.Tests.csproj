@@ -26,6 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Data\empty.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\single_record_with_version_3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\update_event_request.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

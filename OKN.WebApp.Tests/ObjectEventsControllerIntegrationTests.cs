@@ -112,24 +112,17 @@ namespace OKN.WebApp.Tests
         public async Task create_object_event()
         {
             _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
+            _factory.Runner.Import("okn", "objects_versions", "Data/empty.json", true);
 
             var content = new StringContent(File.ReadAllText("Data/create_event_request.json"), Encoding.UTF8, "application/json");
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
 
-            // The endpoint or route of the controller action.
             var httpResponse = await _client.PostAsync("/api/objects/5af2796e32522f798f822a41/events", content);
-
-            // Must be successful.
             httpResponse.EnsureSuccessStatusCode();
 
-            // The endpoint or route of the controller action.
-
+            //Assert that event has been updated
             var httpResponse1 = await _client.GetAsync("/api/objects/5af2796e32522f798f822a41/events");
-
-            // Must be successful.
             httpResponse1.EnsureSuccessStatusCode();
-
-            // Deserialize and examine results.
             var stringResponse = await httpResponse1.Content.ReadAsStringAsync();
             var objects = JsonConvert.DeserializeObject<PagedList<OknObjectEvent>>(stringResponse);
 
@@ -139,12 +132,19 @@ namespace OKN.WebApp.Tests
             Assert.Equal(3, objects.Data.Count);
 
             Assert.Contains(objects.Data, result => result.Name == "new event");
+
+            //Assert that object versions list contains new version
+            await AssertHelpers.AssertObjectVersionsListHasNewRecord(_client);
+
+            //Assert that object version has been updated
+            await AssertHelpers.AssertObjectHasNewVersion(_client);
         }
 
         [Fact]
         public async Task update_object_event()
         {
             _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
+            _factory.Runner.Import("okn", "objects_versions", "Data/empty.json", true);
 
             var content = new StringContent(File.ReadAllText("Data/update_event_request.json"), Encoding.UTF8, "application/json");
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
@@ -163,6 +163,12 @@ namespace OKN.WebApp.Tests
 
             Assert.Equal("c1099b06-99e9-423d-acd3-66ec56ac2c2d", obj.EventId);
             Assert.Equal("event updated", obj.Name);
+
+            //Assert that object versions list contains new version
+            await AssertHelpers.AssertObjectVersionsListHasNewRecord(_client);
+
+            //Assert that object version has been updated
+            await AssertHelpers.AssertObjectHasNewVersion(_client);
         }
     }
 }

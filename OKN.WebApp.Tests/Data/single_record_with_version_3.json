@@ -7,7 +7,7 @@
   "type": 1,
   "objectId": "5af2796e32522f798f822a41",
   "versionInfo": {
-    "versionId": { "$numberLong": "1" },
+    "versionId": { "$numberLong": "3" },
     "createdAt": { "$date": { "$numberLong": "1577358529664" } },
     "createdBy": {
       "userId": "1",

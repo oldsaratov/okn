@@ -2,7 +2,6 @@ using Newtonsoft.Json;
 using OKN.Core.Models;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -49,7 +48,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_last_object_version()
         {
-            _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
+            _factory.Runner.Import("okn", "objects", "Data/single_record_with_version_3.json", true);
             _factory.Runner.Import("okn", "objects_versions", "Data/record_versions.json", true);
 
             // The endpoint or route of the controller action.
@@ -163,6 +162,7 @@ namespace OKN.WebApp.Tests
         public async Task update_object()
         {
             _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
+            _factory.Runner.Import("okn", "objects_versions", "Data/empty.json", true);
 
             var content = new StringContent(File.ReadAllText("Data/update_request_with_photos.json"), Encoding.UTF8, "application/json");
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
@@ -186,22 +186,10 @@ namespace OKN.WebApp.Tests
             Assert.Equal("46.0091007", obj.Longitude.ToString(new CultureInfo("en-us")));
             Assert.Equal(EObjectType.Regional, obj.Type);
 
-            ValidateVersion(obj.Version);
-        }
+            AssertHelpers.ValidateVersion(2, obj.Version);
 
-        private void ValidateVersion(VersionInfo version)
-        {
-            Assert.NotNull(version);
-            Assert.Equal(1, version.VersionId);
-
-            ValidateUser(version.Author);
-        }
-
-        private void ValidateUser(UserInfo versionAuthor)
-        {
-            Assert.Equal("1", versionAuthor.UserId);
-            Assert.Equal("TestUser", versionAuthor.UserName);
-            Assert.Equal("test@test.com", versionAuthor.Email);
+            //Assert that object versions list contains new version
+            await AssertHelpers.AssertObjectVersionsListHasNewRecord(_client);
         }
     }
 }
