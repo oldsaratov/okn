@@ -120,7 +120,7 @@ namespace OKN.Core.Repositories
 
             if (!string.IsNullOrEmpty(query.NameToken))
             {
-                var nameTokenFilter = Builders<ObjectEntity>.Filter.Regex("name", new BsonRegularExpression(query.NameToken));
+                var nameTokenFilter = Builders<ObjectEntity>.Filter.Regex("name", new BsonRegularExpression(query.NameToken, "i"));
 
                 filter = Builders<ObjectEntity>.Filter.And(filter, nameTokenFilter);
             }

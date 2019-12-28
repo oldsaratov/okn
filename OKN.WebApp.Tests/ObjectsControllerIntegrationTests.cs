@@ -122,7 +122,7 @@ namespace OKN.WebApp.Tests
         [Fact]
         public async Task get_list_of_object_with_filter()
         {
-            var nameToken = "Здание";
+            var nameToken = "здание";
             var types = new[] { (int)EObjectType.Municipal, (int)EObjectType.Regional };
 
             _factory.Runner.Import("okn", "objects", "Data/many_records.json", true);
@@ -142,7 +142,7 @@ namespace OKN.WebApp.Tests
             Assert.Equal(4, objects.Data.Count);
             Assert.Equal(4, objects.Total);
 
-            Assert.All(objects.Data, result => Assert.Contains(nameToken, result.Name));
+            Assert.All(objects.Data, result => Assert.Contains(nameToken, result.Name.ToLower()));
             Assert.All(objects.Data, result => Assert.Contains((int)result.Type, types));
         }
     }
