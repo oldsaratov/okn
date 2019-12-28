@@ -5,5 +5,64 @@
   "latitude": 51.5391153,
   "longitude": 46.0091007,
   "type": 1,
-  "objectId": "5af2796e32522f798f822a41"
+  "objectId": "5af2796e32522f798f822a41",
+  "versionInfo": {
+    "versionId": { "$numberLong": "3" },
+    "createdAt": { "$date": { "$numberLong": "1577358529664" } },
+    "createdBy": {
+      "userId": "1",
+      "name": "Admin",
+      "email": "okolobaxa@gmail.com"
+    }
+  },
+  "events": [
+    {
+      "eventId": "c1099b06-99e9-423d-acd3-66ec56ac2c2d",
+      "name": "event 1",
+      "description": "event 1",
+      "occuredAt": { "$date": { "$numberLong": "1577359729348" } },
+      "createdBy": {
+        "userId": "1",
+        "name": "event 1",
+        "email": "okolobaxa@gmail.com"
+      },
+      "photos": [
+        {
+          "fileId": "fid",
+          "url": null,
+          "description": "Main photo description"
+        },
+        {
+          "fileId": "fid",
+          "url": null,
+          "description": "Main photo description"
+        }
+      ],
+      "files": null
+    },
+    {
+      "eventId": "77cea16e-f551-4804-ad6f-218030e4815f",
+      "name": "event 2",
+      "description": "event 2",
+      "occuredAt": { "$date": { "$numberLong": "1577361283491" } },
+      "createdBy": {
+        "userId": "1",
+        "name": "Admin",
+        "email": "okolobaxa@gmail.com"
+      },
+      "photos": [
+        {
+          "fileId": "fid",
+          "url": null,
+          "description": "Main photo description"
+        },
+        {
+          "fileId": "fid",
+          "url": null,
+          "description": "Main photo description"
+        }
+      ],
+      "files": null
+    }
+  ]
 }

@@ -47,6 +47,26 @@ namespace OKN.WebApp.Tests
         }
 
         [Fact]
+        public async Task get_last_object_version()
+        {
+            _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
+            _factory.Runner.Import("okn", "objects_versions", "Data/record_versions.json", true);
+
+            // The endpoint or route of the controller action.
+            var httpResponse = await _client.GetAsync("/api/objects/5af2796e32522f798f822a41");
+
+            // Must be successful.
+            httpResponse.EnsureSuccessStatusCode();
+
+            // Deserialize and examine results.
+            var stringResponse = await httpResponse.Content.ReadAsStringAsync();
+            var obj = JsonConvert.DeserializeObject<OknObject>(stringResponse);
+
+            Assert.NotNull(obj.Version);
+            Assert.Equal(3, obj.Version.VersionId);
+        }
+
+        [Fact]
         public async Task get_invalid_object_return_404()
         {
             _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
