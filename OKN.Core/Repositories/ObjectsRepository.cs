@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using OKN.Core.Exceptions;
 using OKN.Core.Models;
@@ -117,6 +118,13 @@ namespace OKN.Core.Repositories
                 filter = Builders<ObjectEntity>.Filter.In(x => x.Type, query.Types);
             }
 
+            if (!string.IsNullOrEmpty(query.NameToken))
+            {
+                var nameTokenFilter = Builders<ObjectEntity>.Filter.Regex("name", new BsonRegularExpression(query.NameToken));
+
+                filter = Builders<ObjectEntity>.Filter.And(filter, nameTokenFilter);
+            }
+
             var cursor = _context.Objects.Find(filter);
             var count = cursor.CountDocuments(cancellationToken);
             var items = await cursor
@@ -202,7 +210,7 @@ namespace OKN.Core.Repositories
                     Url = command.MainPhoto?.Url,
                     Description = command.MainPhoto?.Description,
                 },
-                Photos = command.Photos?.Select(x =>  new FileEntity
+                Photos = command.Photos?.Select(x => new FileEntity
                 {
                     FileId = x.FileId,
                     Url = x.Url,
@@ -259,7 +267,7 @@ namespace OKN.Core.Repositories
             originalEntity.Events.Add(entity);
 
             var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
-         
+
             return null;
         }
 
@@ -280,7 +288,7 @@ namespace OKN.Core.Repositories
             {
                 throw new ObjectEventNotExistException("Object event with this id doesn't exist");
             }
-            
+
             objectEvent.Name = command.Name;
             objectEvent.Description = command.Description;
             objectEvent.OccuredAt = command.OccuredAt;

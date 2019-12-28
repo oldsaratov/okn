@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using OKN.Core.Models;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -97,8 +98,35 @@ namespace OKN.WebApp.Tests
             Assert.Equal(2, objects.Data.Count);
             Assert.Equal(9, objects.Total);
         }
+
+        [Fact]
+        public async Task get_list_of_object_with_filter()
+        {
+            var nameToken = "Здание";
+            var types = new[] { (int)EObjectType.Municipal, (int)EObjectType.Regional };
+
+            _factory.Runner.Import("okn", "objects", "Data/many_records.json", true);
+            // The endpoint or route of the controller action.
+            var httpResponse = await _client.GetAsync($"/api/objects?name={nameToken}&types={string.Join(",", types)}");
+
+            // Must be successful.
+            httpResponse.EnsureSuccessStatusCode();
+
+            // Deserialize and examine results.
+            var stringResponse = await httpResponse.Content.ReadAsStringAsync();
+            var objects = JsonConvert.DeserializeObject<PagedList<OknObject>>(stringResponse);
+
+            Assert.Equal(1, objects.Page);
+            Assert.Equal(100, objects.PerPage);
+            Assert.NotEmpty(objects.Data);
+            Assert.Equal(4, objects.Data.Count);
+            Assert.Equal(4, objects.Total);
+
+            Assert.All(objects.Data, result => Assert.Contains(nameToken, result.Name));
+            Assert.All(objects.Data, result => Assert.Contains((int)result.Type, types));
+        }
     }
-    
+
     public class ObjectsControllerWithAuthIntegrationTests : IClassFixture<CustomWebApplicationFactoryWithAuth<Startup>>
     {
         private readonly HttpClient _client;

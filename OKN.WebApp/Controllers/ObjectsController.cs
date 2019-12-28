@@ -103,16 +103,18 @@ namespace OKN.WebApp.Controllers
         /// <param name="page"></param>
         /// <param name="perPage"></param>
         /// <param name="types"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(PagedList<OknObject>), 200)]
         public async Task<IActionResult> List([FromQuery] int? page,
-            [FromQuery] int? perPage, [FromQuery] string types)
+            [FromQuery] int? perPage, [FromQuery] string types, [FromQuery] string name)
         {
             var query = new ListObjectsQuery
             {
                 Page = page ?? 1,
-                PerPage = perPage ?? DefaultPerPage
+                PerPage = perPage ?? DefaultPerPage,
+                NameToken = name
             };
 
             if (types != null)
