@@ -53,18 +53,26 @@ namespace OKN.WebApp.Controllers
                 Description = request.Description,
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
-                Type = request.Type,
-                MainPhoto = new FileInfo
+                Type = request.Type
+            };
+
+            if (request.MainPhoto != null)
+            {
+                updateCommand.MainPhoto = new FileInfo
                 {
                     FileId = request.MainPhoto.FileId,
                     Description = request.MainPhoto.Description
-                },
-                Photos = request.Photos.Select(x => new FileInfo
+                };
+            }
+
+            if (request.Photos != null)
+            {
+                updateCommand.Photos = request.Photos.Select(x => new FileInfo
                 {
                     FileId = x.FileId,
                     Description = x.Description
-                }).ToList()
-            };
+                }).ToList();
+            }
 
             updateCommand.SetCreator(
                 long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),

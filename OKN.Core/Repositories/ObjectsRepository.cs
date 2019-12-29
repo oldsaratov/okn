@@ -10,6 +10,7 @@ using OKN.Core.Models;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Entities;
 using OKN.Core.Models.Queries;
+using Uploadcare;
 
 namespace OKN.Core.Repositories
 {
@@ -192,23 +193,40 @@ namespace OKN.Core.Repositories
                 Longitude = command.Longitude,
                 Latitude = command.Latitude,
                 Type = command.Type,
-                MainPhoto = new FileEntity
-                {
-                    FileId = command.MainPhoto?.FileId,
-                    Url = command.MainPhoto?.Url,
-                    Description = command.MainPhoto?.Description,
-                },
-                Photos = command.Photos?.Select(x => new FileEntity
-                {
-                    FileId = x.FileId,
-                    Url = x.Url,
-                    Description = x.Description,
-                }).ToList(),
                 Events = originalEntity.Events
             };
 
+            newEntity.MainPhoto = command.MainPhoto != null
+                ? ProcessFileInfo(command.MainPhoto)
+                : null;
+
+            if (command.Photos != null)
+            {
+                newEntity.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
+            }
+
             await IncObjectVersion(command, originalEntity, newEntity, cancellationToken);
             await _context.Objects.ReplaceOneAsync(filter, newEntity, cancellationToken: cancellationToken);
+        }
+
+        private FileEntity ProcessFileInfo(FileInfo fileInfo)
+        {
+            var fileEntity = new FileEntity
+            {
+                FileId = fileInfo.FileId,
+                Description = fileInfo.Description,
+            };
+
+            if (string.IsNullOrEmpty(fileEntity.Url) && !string.IsNullOrEmpty(fileInfo.FileId))
+            {
+                fileEntity.Url = CdnPathBuilder.Build(fileInfo.FileId).ToString();
+            }
+            else
+            {
+                fileEntity.Url = fileInfo.Url;
+            }
+
+            return fileEntity;
         }
 
         private async Task IncObjectVersion(BaseCommandWithInitiator command, ObjectEntity originalEntity, ObjectEntity newEntity, CancellationToken cancellationToken)
@@ -246,20 +264,18 @@ namespace OKN.Core.Repositories
                 Name = command.Name,
                 Description = command.Description,
                 OccuredAt = command.OccuredAt,
-                Author = new UserInfoEntity(command.UserId, command.UserName, command.Email),
-                Photos = command.Photos?.Select(x => new FileEntity
-                {
-                    FileId = x.FileId,
-                    Url = x.Url,
-                    Description = x.Description,
-                }).ToList(),
-                Files = command.Files?.Select(x => new FileEntity
-                {
-                    FileId = x.FileId,
-                    Url = x.Url,
-                    Description = x.Description,
-                }).ToList()
+                Author = new UserInfoEntity(command.UserId, command.UserName, command.Email)
             };
+
+            if (command.Photos != null && command.Photos.Any())
+            {
+                entity.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
+            }
+
+            if (command.Files != null && command.Files.Any())
+            {
+                entity.Files = command.Files.Select(x => ProcessFileInfo(x)).ToList();
+            }
 
             if (originalEntity.Events == null)
                 originalEntity.Events = new List<ObjectEventEntity>();
@@ -296,19 +312,15 @@ namespace OKN.Core.Repositories
             objectEvent.Description = command.Description;
             objectEvent.OccuredAt = command.OccuredAt;
 
-            objectEvent.Photos = command.Photos?.Select(x => new FileEntity
+            if (command.Photos != null)
             {
-                FileId = x.FileId,
-                Url = x.Url,
-                Description = x.Description,
-            }).ToList();
+                objectEvent.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
+            }
 
-            objectEvent.Files = command.Files?.Select(x => new FileEntity
+            if (command.Files != null)
             {
-                FileId = x.FileId,
-                Url = x.Url,
-                Description = x.Description,
-            }).ToList();
+                objectEvent.Files = command.Files.Select(x => ProcessFileInfo(x)).ToList();
+            }
 
             await IncObjectVersion(command, originalEntity, originalEntity, cancellationToken);
             var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
