@@ -327,5 +327,33 @@ namespace OKN.Core.Repositories
 
             return null;
         }
+
+        public async Task<OknObject> DeleteObjectEvent(DeleteObjectEventCommand command, CancellationToken cancellationToken)
+        {
+            var filter = Builders<ObjectEntity>.Filter.Where(x => x.ObjectId == command.ObjectId);
+            var originalEntity = await _context.Objects
+                .Find(filter)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (originalEntity == null)
+            {
+                throw new ObjectEventNotExistException("Object with this id doesn't exist");
+            }
+
+            var objectEvent = originalEntity.Events.FirstOrDefault(x => x.EventId == command.EventId);
+            if (objectEvent == null)
+            {
+                throw new ObjectEventNotExistException("Object event with this id doesn't exist");
+            }
+
+            originalEntity.Events = originalEntity.Events.Where(x => x.EventId != command.EventId).ToList();
+
+            SetObjectVersionIfNotExist(command, originalEntity);
+
+            await IncObjectVersion(command, originalEntity, originalEntity, cancellationToken);
+            var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
+
+            return null;
+        }
     }
 }

@@ -114,6 +114,33 @@ namespace OKN.WebApp.Controllers
             return Ok();
         }
 
+
+        // DELETE api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Delete event of object
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
+        [HttpDelete("{objectId}/events/{eventId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(void), 200)]
+        public async Task<IActionResult> Delete([FromRoute]string objectId, [FromRoute]string eventId)
+        {
+            var currentUser = HttpContext.User;
+
+            var deleteCommand = new DeleteObjectEventCommand(objectId, eventId);
+
+            deleteCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
+                currentUser.FindFirstValue(ClaimTypes.Email));
+
+            await _objectsRepository.DeleteObjectEvent(deleteCommand, CancellationToken.None);
+
+            return Ok();
+        }
+
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
         /// <summary>
         /// List object events

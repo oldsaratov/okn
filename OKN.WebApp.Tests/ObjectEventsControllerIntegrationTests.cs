@@ -170,5 +170,32 @@ namespace OKN.WebApp.Tests
             //Assert that object version has been updated
             await AssertHelpers.AssertObjectHasNewVersion(_client);
         }
+
+
+        [Fact]
+        public async Task delete_object_event()
+        {
+            _factory.Runner.Import("okn", "objects", "Data/single_record.json", true);
+            _factory.Runner.Import("okn", "objects_versions", "Data/empty.json", true);
+
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+
+            // The endpoint or route of the controller action.
+            var httpResponse = await _client.DeleteAsync("/api/objects/5af2796e32522f798f822a41/events/c1099b06-99e9-423d-acd3-66ec56ac2c2d");
+
+            // Must be successful.
+            httpResponse.EnsureSuccessStatusCode();
+
+            // The endpoint or route of the controller action.
+            var httpResponse1 = await _client.GetAsync("/api/objects/5af2796e32522f798f822a41/events/c1099b06-99e9-423d-acd3-66ec56ac2c2d");
+
+            Assert.Equal(System.Net.HttpStatusCode.NotFound, httpResponse1.StatusCode);
+
+            //Assert that object versions list contains new version
+            await AssertHelpers.AssertObjectVersionsListHasNewRecord(_client);
+
+            //Assert that object version has been updated
+            await AssertHelpers.AssertObjectHasNewVersion(_client);
+        }
     }
 }
