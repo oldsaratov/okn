@@ -66,6 +66,9 @@ namespace OKN.Core.Repositories
             if (entity != null)
             {
                 var model = _mapper.Map<ObjectEntity, OknObject>(entity);
+
+                model.Events = model.Events.OrderByDescending(x => x.OccuredAt).ToList();
+
                 return model;
             }
 
@@ -155,6 +158,7 @@ namespace OKN.Core.Repositories
 
             var count = objectEntity.Events.Count;
             var items = objectEntity.Events.AsQueryable()
+                .OrderByDescending(x => x.OccuredAt)
                 .Skip((query.Page - 1) * query.PerPage)
                 .Take(query.PerPage).ToList();
 
