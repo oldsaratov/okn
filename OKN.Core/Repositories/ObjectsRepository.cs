@@ -31,6 +31,8 @@ namespace OKN.Core.Repositories
 
             ObjectEntity entity = null;
 
+            var excludeFields = Builders<ObjectEntity>.Projection.Exclude(d => d.Events);
+
             if (query.Version.HasValue)
             {
                 var versionFilter = Builders<ObjectEntity>.Filter
@@ -44,6 +46,7 @@ namespace OKN.Core.Repositories
 
                 entity = await _context.ObjectVersions
                     .Find(filter)
+                    .Project<ObjectEntity>(excludeFields)
                     .SortByDescending(x => x.Version.VersionId)
                     .FirstOrDefaultAsync(cancellationToken);
             }
@@ -53,6 +56,7 @@ namespace OKN.Core.Repositories
             {
                 entity = await _context.Objects
                     .Find(filter)
+                    .Project<ObjectEntity>(excludeFields)
                     .FirstOrDefaultAsync(cancellationToken);
 
                 //check if requested version is last version
@@ -128,10 +132,12 @@ namespace OKN.Core.Repositories
                 filter = Builders<ObjectEntity>.Filter.And(filter, nameTokenFilter);
             }
 
+            var excludeFields = Builders<ObjectEntity>.Projection.Exclude(d => d.Events);
+
             var cursor = _context.Objects.Find(filter);
             var count = cursor.CountDocuments(cancellationToken);
             var items = await cursor
-                .SortByDescending(x => x.Version.VersionId)
+                .Project<ObjectEntity>(excludeFields)
                 .Limit(query.PerPage)
                 .Skip((query.Page - 1) * query.PerPage)
                 .ToListAsync(cancellationToken);
@@ -262,7 +268,7 @@ namespace OKN.Core.Repositories
 
             SetObjectVersionIfNotExist(command, originalEntity);
 
-            var entity = new ObjectEventEntity
+            var eventEntity = new ObjectEventEntity
             {
                 EventId = command.EventId,
                 Name = command.Name,
@@ -273,18 +279,15 @@ namespace OKN.Core.Repositories
 
             if (command.Photos != null && command.Photos.Any())
             {
-                entity.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
+                eventEntity.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
             }
 
             if (command.Files != null && command.Files.Any())
             {
-                entity.Files = command.Files.Select(x => ProcessFileInfo(x)).ToList();
+                eventEntity.Files = command.Files.Select(x => ProcessFileInfo(x)).ToList();
             }
 
-            if (originalEntity.Events == null)
-                originalEntity.Events = new List<ObjectEventEntity>();
-
-            originalEntity.Events.Add(entity);
+            originalEntity.AddEvent(eventEntity);
 
             await IncObjectVersion(command, originalEntity, originalEntity, cancellationToken);
             var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
@@ -351,13 +354,19 @@ namespace OKN.Core.Repositories
             }
 
             originalEntity.Events = originalEntity.Events.Where(x => x.EventId != command.EventId).ToList();
-
+            
+            RecalculateEventsCount(originalEntity);
             SetObjectVersionIfNotExist(command, originalEntity);
 
             await IncObjectVersion(command, originalEntity, originalEntity, cancellationToken);
             var result = await _context.Objects.ReplaceOneAsync(filter, originalEntity, cancellationToken: cancellationToken);
 
             return null;
+        }
+
+        private static void RecalculateEventsCount(ObjectEntity originalEntity)
+        {
+            originalEntity.EventsCount = originalEntity.Events.Count;
         }
     }
 }

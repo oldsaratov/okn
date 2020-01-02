@@ -28,7 +28,10 @@ namespace OKN.Core.Models
 
         [JsonProperty("events")]
         public List<OknObjectEvent> Events { get; set; }
-        
+
+        [JsonProperty("eventsCount")]
+        public int EventsCount { get; set; }
+
         [JsonProperty("mainPhoto")]
         public FileInfo MainPhoto { get; set; }
         
