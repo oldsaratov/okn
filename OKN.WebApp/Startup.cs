@@ -109,7 +109,6 @@ namespace OKN.WebApp
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "OKN API V1");
-                c.RoutePrefix = string.Empty;
             });
         }
     }
