@@ -203,6 +203,7 @@ namespace OKN.Core.Repositories
                 Longitude = command.Longitude,
                 Latitude = command.Latitude,
                 Type = command.Type,
+                EventsCount = originalEntity.EventsCount,
                 Events = originalEntity.Events
             };
 
