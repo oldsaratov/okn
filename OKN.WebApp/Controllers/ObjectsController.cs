@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using GeoJSON.Net.Feature;
+using GeoJSON.Net.Geometry;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OKN.Core.Models;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
 using OKN.Core.Repositories;
 using OKN.WebApp.Models.Objects;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -110,11 +113,12 @@ namespace OKN.WebApp.Controllers
         /// <param name="perPage"></param>
         /// <param name="types"></param>
         /// <param name="name"></param>
+        /// <param name="geoJSON"></param>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(PagedList<OknObject>), 200)]
         public async Task<IActionResult> List([FromQuery] int? page,
-            [FromQuery] int? perPage, [FromQuery] string types, [FromQuery] string name)
+            [FromQuery] int? perPage, [FromQuery] string types, [FromQuery] string name, [FromQuery] bool geoJSON = false)
         {
             var query = new ListObjectsQuery(page, perPage)
             {
@@ -130,7 +134,33 @@ namespace OKN.WebApp.Controllers
             if (model == null)
                 return BadRequest();
 
-            return Ok(model);
+            if (geoJSON)
+            {
+                var featureCollection = new FeatureCollection();
+
+                foreach (var item in model.Data)
+                {
+                    if (item.Latitude != default && item.Longitude != default)
+                    {
+                        var point = new Point(new Position((double)item.Latitude, (double)item.Longitude));
+                        var properties = new Dictionary<string, object>()
+                        {
+                            {"name", item.Name },
+                            {"type", item.Type },
+                        };
+
+                        var feature = new Feature(point, properties, item.ObjectId);
+
+                        featureCollection.Features.Add(feature);
+                    }
+                }
+
+                return Ok(featureCollection);
+            }
+            else
+            {
+                return Ok(model);
+            }
         }
     }
 }
