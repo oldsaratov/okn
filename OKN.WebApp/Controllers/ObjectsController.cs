@@ -143,13 +143,17 @@ namespace OKN.WebApp.Controllers
                     if (item.Latitude != default && item.Longitude != default)
                     {
                         var point = new Point(new Position((double)item.Latitude, (double)item.Longitude));
-                        var properties = new Dictionary<string, object>()
+                        var properties = new Dictionary<string, object>
                         {
-                            {"id", item.ObjectId },
+                            {"objectId", item.ObjectId },
                             {"name", item.Name },
-                            {"type", item.Type },
-                            {"photoUrl", item.MainPhoto?.Url }
+                            {"type", item.Type }
                         };
+
+                        if (!string.IsNullOrEmpty(item.MainPhoto?.Url))
+                        {
+                            properties.Add("photoUrl", item.MainPhoto.Url);
+                        }
 
                         var feature = new Feature(point, properties, item.ObjectId);
 
