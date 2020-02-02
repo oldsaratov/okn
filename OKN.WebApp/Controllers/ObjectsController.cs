@@ -145,8 +145,10 @@ namespace OKN.WebApp.Controllers
                         var point = new Point(new Position((double)item.Latitude, (double)item.Longitude));
                         var properties = new Dictionary<string, object>()
                         {
+                            {"id", item.ObjectId },
                             {"name", item.Name },
                             {"type", item.Type },
+                            {"photoUrl", item.MainPhoto?.Url }
                         };
 
                         var feature = new Feature(point, properties, item.ObjectId);
