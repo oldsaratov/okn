@@ -6,6 +6,8 @@
         Federal = 1,
         Regional = 2,
         Municipal = 3,
-        New = 4
+        New = 4,
+        Excluded = 10,
+        Lost = 100
     }
 }
