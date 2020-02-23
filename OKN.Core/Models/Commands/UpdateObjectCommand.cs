@@ -1,30 +1,24 @@
-﻿using EventFlow.Aggregates.ExecutionResults;
-using EventFlow.Commands;
-using EventFlow.Core;
-using OKN.Core.Aggregate;
-using OKN.Core.Identity;
+﻿using System.Collections.Generic;
 
 namespace OKN.Core.Models.Commands
 {
-	public class UpdateObjectCommand : Command<ObjectAggregate, ObjectId, IExecutionResult>
+    public class UpdateObjectCommand : BaseCommandWithInitiator
     {
-		public string ObjectId { get; set; }
+		public string ObjectId { get; }
 		public string Name { get; set; }
 		public string Description { get; set; }
 	    public decimal Latitude { get; set; }
 	    public decimal Longitude { get; set; }
 	    public EObjectType Type { get; set; }
 	    
-	    public long UserId { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
+        
+        public FileInfo MainPhoto { get; set; }
+        
+        public List<FileInfo> Photos { get; set; }
 
-        public UpdateObjectCommand(ObjectId aggregateId) : base(aggregateId)
+        public UpdateObjectCommand(string objectId)
         {
-        }
-
-        public UpdateObjectCommand(ObjectId aggregateId, ISourceId sourceId) : base(aggregateId, sourceId)
-        {
+            ObjectId = objectId;
         }
     }
 }

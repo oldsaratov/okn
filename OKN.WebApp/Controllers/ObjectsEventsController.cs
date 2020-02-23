@@ -4,14 +4,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow;
-using EventFlow.Queries;
 using Microsoft.AspNetCore.Authorization;
 using OKN.Core.Models;
 using Microsoft.AspNetCore.Mvc;
-using OKN.Core.Identity;
 using OKN.Core.Models.Commands;
 using OKN.Core.Models.Queries;
+using OKN.Core.Repositories;
 using OKN.WebApp.Models.ObjectEvents;
 
 namespace OKN.WebApp.Controllers
@@ -19,16 +17,20 @@ namespace OKN.WebApp.Controllers
     [Route("api/objects")]
     public class ObjectsEventsController : BaseController
     {
-        private readonly ICommandBus _commandBus;
-        private readonly IQueryProcessor _queryProcessor;
+        private readonly ObjectsRepository _objectsRepository;
 
-        public ObjectsEventsController(ICommandBus commandBus, IQueryProcessor queryProcessor)
+        public ObjectsEventsController(ObjectsRepository objectsRepository)
         {
-            _commandBus = commandBus;
-            _queryProcessor = queryProcessor;
+            _objectsRepository = objectsRepository;
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
+        /// <summary>
+        /// Create event for object
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("{objectId}/events")]
         [Authorize]
         [ProducesResponseType(typeof(void), 200)]
@@ -39,54 +41,139 @@ namespace OKN.WebApp.Controllers
 
             var currentUser = HttpContext.User;
 
-            var links = request.Links?.Select(x => new OKNObjectEventLink(x.Description, x.Url)).ToList();
-            var images = request.Images?.Select(x => new OKNObjectEventImage(x.Description, x.Url)).ToList();
-
-            var updateCommand = new CreateObjectEventCommand(new ObjectId(objectId))
+            var updateCommand = new CreateObjectEventCommand(objectId, Guid.NewGuid().ToString())
             {
-                ObjectId = objectId,
-                EventId = Guid.NewGuid().ToString(),
                 Name = request.Name,
                 Description = request.Description,
                 OccuredAt = request.OccuredAt ?? DateTime.UtcNow,
-                Links = links,
-                Images = images,
-
-                UserId = long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)),
-                UserName = currentUser.FindFirstValue(ClaimTypes.Name),
-                Email = currentUser.FindFirstValue(ClaimTypes.Email)
+                Files = request.Files?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList(),
+                Photos = request.Photos?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList()
             };
 
-            await _commandBus.PublishAsync(updateCommand, CancellationToken.None);
+            updateCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
+                currentUser.FindFirstValue(ClaimTypes.Email));
+
+            await _objectsRepository.CreateObjectEvent(updateCommand, CancellationToken.None);
+
+            return Ok();
+        }
+
+        // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Update event for object
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="eventId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("{objectId}/events/{eventId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(void), 200)]
+        public async Task<IActionResult> Update([FromRoute]string objectId, [FromRoute]string eventId,
+            [FromBody] UpdateObjectEventViewModel request)
+        {
+            if (request == null)
+                return BadRequest();
+
+            var currentUser = HttpContext.User;
+
+            var updateCommand = new UpdateObjectEventCommand(objectId, eventId)
+            {
+                Name = request.Name,
+                Description = request.Description,
+                OccuredAt = request.OccuredAt ?? DateTime.UtcNow,
+                Files = request.Files?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList(),
+                Photos = request.Photos?.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList()
+            };
+
+            updateCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
+                currentUser.FindFirstValue(ClaimTypes.Email));
+
+            await _objectsRepository.UpdateObjectEvent(updateCommand, CancellationToken.None);
+
+            return Ok();
+        }
+
+
+        // DELETE api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Delete event of object
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
+        [HttpDelete("{objectId}/events/{eventId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(void), 200)]
+        public async Task<IActionResult> Delete([FromRoute]string objectId, [FromRoute]string eventId)
+        {
+            var currentUser = HttpContext.User;
+
+            var deleteCommand = new DeleteObjectEventCommand(objectId, eventId);
+
+            deleteCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
+                currentUser.FindFirstValue(ClaimTypes.Email));
+
+            await _objectsRepository.DeleteObjectEvent(deleteCommand, CancellationToken.None);
 
             return Ok();
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
+        /// <summary>
+        /// List object events
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="perPage"></param>
+        /// <param name="objectId"></param>
+        /// <returns></returns>
         [HttpGet("{objectId}/events")]
-        [ProducesResponseType(typeof(List<OKNObjectEvent>), 200)]
+        [ProducesResponseType(typeof(List<OknObjectEvent>), 200)]
         public async Task<IActionResult> ListEvents([FromQuery]int? page,
             [FromQuery]int? perPage, [FromRoute]string objectId)
         {
-            var model = await _queryProcessor.ProcessAsync(new ListObjectEventsQuery
-            {
-                ObjectId = objectId,
-                Page = page ?? 1,
-                PerPage = perPage ?? DefaultPerPage
-            }, CancellationToken.None);
+            var model = await _objectsRepository.GetObjectEvents(new ListObjectEventsQuery(objectId, page, perPage), CancellationToken.None);
 
             if (model == null)
-                return NotFound();
+                return Ok(Array.Empty<OknObjectEvent>());
 
             return Ok(model);
         }
 
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
+        /// <summary>
+        /// Get event by object Id and event Id
+        /// </summary>
+        /// <param name="objectId"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpGet("{objectId}/events/{eventId}")]
-        [ProducesResponseType(typeof(OKNObjectEvent), 200)]
+        [ProducesResponseType(typeof(OknObjectEvent), 200)]
         public async Task<IActionResult> GetEvent([FromRoute]string objectId, [FromRoute] string eventId)
         {
-            var model = await _queryProcessor.ProcessAsync(new ObjectEventQuery(objectId, eventId), CancellationToken.None);
+            var model = await _objectsRepository.GetEvent(new ObjectEventQuery(objectId, eventId), CancellationToken.None);
 
             if (model == null)
                 return NotFound();

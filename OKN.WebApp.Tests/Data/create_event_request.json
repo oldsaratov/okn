@@ -1,0 +1,16 @@
+{
+  "name": "new event",
+  "description": "event 1",
+  "photos": [
+    {
+      "fileId": "fid",
+      "url": "",
+      "description": "Main photo description"
+    },
+    {
+      "fileId": "fid",
+      "url": "",
+      "description": "Main photo description"
+    }
+  ]
+}

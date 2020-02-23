@@ -10,8 +10,8 @@ namespace OKN.Core.Models.Queries
             Version = version;
         }
 
-        public string ObjectId { get; set; }
+        public string ObjectId { get; }
 
-        public long? Version { get; set; }
+        public long? Version { get; }
     }
 }

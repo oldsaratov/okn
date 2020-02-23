@@ -11,11 +11,10 @@ namespace OKN.Core.Mappings
         public MappingProfile()
         {
             CreateMap<ObjectEntity, OknObject>();
-            CreateMap<ObjectEventEntity, OKNObjectEvent>();
-            CreateMap<LinkEntity, OKNObjectEventLink>();
-            CreateMap<ImageLinkEntity, OKNObjectEventImage>();
+            CreateMap<ObjectEventEntity, OknObjectEvent>();
             CreateMap<VersionInfoEntity, VersionInfo>();
             CreateMap<UserInfoEntity, UserInfo>();
+            CreateMap<FileEntity, FileInfo>();
             CreateMap<ObjectId, string>().ConvertUsing(o => o.ToString());
             CreateMap<string, ObjectId>().ConvertUsing(o => ObjectId.Parse(o));
             CreateMap<BsonDateTime, DateTime>().ConvertUsing(o => (DateTime)o);

@@ -14,23 +14,12 @@ namespace OKN.WebApp.Models.ObjectEvents
 
         [JsonProperty("occuredAt")]
         public DateTime? OccuredAt { get; set; }
-
-        [JsonProperty("links")]
-        public List<EventLinkViewModel> Links { get; set; }
-
-        [JsonProperty("images")]
-        public List<EventImageViewModel> Images { get; set; }
+        
+        [JsonProperty("files")]
+        public List<FileInfoViewModel> Files { get; set; }
+        
+        [JsonProperty("photos")]
+        public List<FileInfoViewModel> Photos { get; set; }
     }
-
-    public class EventLinkViewModel
-    {
-        [JsonProperty("description")]
-        public string Description { get; set; }
-
-        [JsonProperty("url")]
-        public string Url { get; set; }
-    }
-
-    public class EventImageViewModel : EventLinkViewModel { }
 }
 

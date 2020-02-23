@@ -16,40 +16,18 @@ namespace OKN.Core.Models.Entities
         [BsonElement("description")]
         public string Description { get; set; }
         
-        [BsonElement("links")]
-        public List<LinkEntity> Links { get; set; }
-
-        [BsonElement("images")]
-        public List<ImageLinkEntity> Images { get; set; }
-        
         [BsonElement("occuredAt")]
         public BsonDateTime OccuredAt { get; set; }
         
         [BsonElement("createdBy")]
         public UserInfoEntity Author { get; set; }
 
-        public ObjectEventEntity() { }
-    }
-
-    public class LinkEntity
-    {
-        public LinkEntity(string url, string description)
-        {
-            Url = url;
-            Description = description;
-        }
-
-        [BsonElement("description")]
-        public string Description { get; set; }
+        [BsonElement("photos")]
+        public List<FileEntity> Photos { get; set; }
         
-        [BsonElement("url")]
-        public string Url { get; set; }
-    }
+        [BsonElement("files")]
+        public List<FileEntity> Files { get; set; }
 
-    public class ImageLinkEntity : LinkEntity
-    {
-        public ImageLinkEntity(string url, string description) : base(url, description)
-        {
-        }
+        public ObjectEventEntity() { }
     }
 }

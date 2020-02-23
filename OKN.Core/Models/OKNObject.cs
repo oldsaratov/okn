@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -28,30 +27,15 @@ namespace OKN.Core.Models
         public VersionInfo Version { get; set; }
 
         [JsonProperty("events")]
-        public List<OKNObjectEvent> Events { get; set; }
-    }
-    
-    public class VersionInfo
-    {
-        [JsonProperty("versionId")]
-        public long VersionId { get; set; }
+        public List<OknObjectEvent> Events { get; set; }
+
+        [JsonProperty("eventsCount")]
+        public int EventsCount { get; set; }
+
+        [JsonProperty("mainPhoto")]
+        public FileInfo MainPhoto { get; set; }
         
-        [JsonProperty("createdAt")]
-        public DateTime CreateDate { get; set; }
-        
-        [JsonProperty("createdBy")]
-        public UserInfo Author { get; set; }
-    }
-
-    public class UserInfo
-    {
-        [JsonProperty("id")]
-        public long Id { get; set; }
-
-        [JsonProperty("name")]
-        public string UserName { get; set; }
-
-        [JsonProperty("email")]
-        public string Email { get; set; }
+        [JsonProperty("photos")]
+        public List<FileInfo> Photos { get; set; }
     }
 }

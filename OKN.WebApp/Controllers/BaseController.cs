@@ -4,6 +4,5 @@ namespace OKN.WebApp.Controllers
 {
     public class BaseController : ControllerBase
 	{
-	    internal const int DefaultPerPage = 100;
 	}
 }
