@@ -34,6 +34,7 @@
 - [Mapbox](https://www.mapbox.com/) для карты
 - [Uploadcare](https://uploadcare.com/) для загрузки фотографий и файлов
 
+Исходный код распространяется под [MIT](https://opensource.org/licenses/MIT) лицензией. 
   
     
 ## Создано при поддержке
