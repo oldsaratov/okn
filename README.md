@@ -34,7 +34,7 @@
 - [Mapbox](https://www.mapbox.com/) для карты
 - [Uploadcare](https://uploadcare.com/) для загрузки фотографий и файлов
 
-Исходный код распространяется под  лицензией. 
+Исходный код распространяется под  лицензией.  
 [API-документация](https://okn.oldsaratov.ru/swagger/index.html)
   
     
