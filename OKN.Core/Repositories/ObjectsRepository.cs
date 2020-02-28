@@ -1,3 +1,4 @@
+using System;
 using AutoMapper;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -142,6 +143,35 @@ namespace OKN.Core.Repositories
             return paged;
         }
 
+        public async Task<OknObject> CreateObject(CreateObjectCommand command, CancellationToken cancellationToken)
+        {
+            var entity = new ObjectEntity
+            {
+                ObjectId = Guid.NewGuid().ToString().ToLower().Replace("_", ""),
+                Name = command.Name,
+                Description = command.Description,
+                Longitude = command.Longitude,
+                Latitude = command.Latitude,
+                Type = command.Type,
+                EventsCount = 0,
+                Events = null,
+                Version = new VersionInfoEntity(1, new UserInfoEntity(command.UserId, command.UserName, command.Email)),
+                MainPhoto = command.MainPhoto != null
+                    ? ProcessFileInfo(command.MainPhoto)
+                    : null
+            };
+
+            if (command.Photos != null)
+            {
+                entity.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
+            }
+
+            await _context.Objects.InsertOneAsync(entity, cancellationToken: cancellationToken);
+
+            return _mapper.Map<ObjectEntity, OknObject>(entity);
+        }
+
+
         public async Task UpdateObject(UpdateObjectCommand command, CancellationToken cancellationToken)
         {
             var filter = Builders<ObjectEntity>.Filter.Where(x => x.ObjectId == command.ObjectId);
@@ -159,18 +189,18 @@ namespace OKN.Core.Repositories
             var newEntity = new ObjectEntity
             {
                 ObjectId = originalEntity.ObjectId,
-                Name = command.Name,
-                Description = command.Description,
-                Longitude = command.Longitude,
-                Latitude = command.Latitude,
-                Type = command.Type,
+                Federal = originalEntity.Federal,
+                Name = command.Name ?? originalEntity.Name,
+                Description = command.Description ?? originalEntity.Description,
+                Longitude = command.Longitude ?? originalEntity.Longitude,
+                Latitude = command.Latitude ?? originalEntity.Latitude,
+                Type = command.Type != default ? command.Type : originalEntity.Type,
                 EventsCount = originalEntity.EventsCount,
-                Events = originalEntity.Events
+                Events = originalEntity.Events,
+                MainPhoto = command.MainPhoto != null
+                    ? ProcessFileInfo(command.MainPhoto)
+                    : null
             };
-
-            newEntity.MainPhoto = command.MainPhoto != null
-                ? ProcessFileInfo(command.MainPhoto)
-                : null;
 
             if (command.Photos != null)
             {

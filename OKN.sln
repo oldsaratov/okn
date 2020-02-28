@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OKN.Core.Tests", "OKN.Core.
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{3A9DF67F-0BF7-48BB-8911-5A9897C66938}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OKN.WebApp.Tests", "OKN.WebApp.Tests\OKN.WebApp.Tests.csproj", "{CE278DA9-18AE-4CE5-A638-328047BE9C91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OKN.WebApp.Tests", "OKN.WebApp.Tests\OKN.WebApp.Tests.csproj", "{CE278DA9-18AE-4CE5-A638-328047BE9C91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FederalDataImport", "FederalDataImport\FederalDataImport.csproj", "{03FB3F1B-2C35-4D45-B5B6-5B5464C7ED34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{CE278DA9-18AE-4CE5-A638-328047BE9C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE278DA9-18AE-4CE5-A638-328047BE9C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE278DA9-18AE-4CE5-A638-328047BE9C91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03FB3F1B-2C35-4D45-B5B6-5B5464C7ED34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03FB3F1B-2C35-4D45-B5B6-5B5464C7ED34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03FB3F1B-2C35-4D45-B5B6-5B5464C7ED34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03FB3F1B-2C35-4D45-B5B6-5B5464C7ED34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

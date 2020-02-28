@@ -16,6 +16,9 @@ namespace OKN.Core.Models.Entities
         [BsonElement("description")]
         public string Description { get; set; }
         
+        [BsonElement("type")]
+        public EObjectEventType Type { get; set; }
+
         [BsonElement("occuredAt")]
         public BsonDateTime OccuredAt { get; set; }
         

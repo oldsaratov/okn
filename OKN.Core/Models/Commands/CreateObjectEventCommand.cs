@@ -18,6 +18,8 @@ namespace OKN.Core.Models.Commands
 
         public string EventId { get; }
 
+        public EObjectEventType Type { get; set; }
+
         public string Name { get; set; }
 
         public string Description { get; set; }

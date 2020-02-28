@@ -15,10 +15,10 @@ namespace OKN.Core.Models
         public string Description { get; set; }
         
         [JsonProperty("latitude")]
-        public decimal Latitude { get; set; }
+        public string Latitude { get; set; }
         
         [JsonProperty("longitude")]
-        public decimal Longitude { get; set; }
+        public string Longitude { get; set; }
         
         [JsonProperty("type")]
         public EObjectType Type { get; set; }

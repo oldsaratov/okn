@@ -12,6 +12,7 @@ namespace OKN.Core
             services.AddAutoMapper(typeof(MappingProfile));
 
             services.AddSingleton<ObjectsRepository>();
+            services.AddSingleton<ObjectsEventRepository>();
         }
     }
 }

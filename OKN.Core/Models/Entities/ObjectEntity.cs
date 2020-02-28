@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace OKN.Core.Models.Entities
@@ -17,10 +18,13 @@ namespace OKN.Core.Models.Entities
         public string Description { get; set; }
 
         [BsonElement("latitude")]
-        public decimal Latitude { get; set; }
+        public string Latitude { get; set; }
 
         [BsonElement("longitude")]
-        public decimal Longitude { get; set; }
+        public string Longitude { get; set; }
+
+        [BsonElement("federal")]
+        public BsonDocument Federal { get; set; }
 
         [BsonElement("type")]
         public EObjectType Type { get; set; }

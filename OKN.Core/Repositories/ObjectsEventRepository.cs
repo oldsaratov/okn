@@ -103,6 +103,7 @@ namespace OKN.Core.Repositories
                 Name = command.Name,
                 Description = command.Description,
                 OccuredAt = command.OccuredAt,
+                Type = command.Type,
                 Author = new UserInfoEntity(command.UserId, command.UserName, command.Email)
             };
 
@@ -136,26 +137,26 @@ namespace OKN.Core.Repositories
                 throw new ObjectEventNotExistException("Object with this id doesn't exist");
             }
 
-            var objectEvent = originalEntity.Events.FirstOrDefault(x => x.EventId == command.EventId);
-            if (objectEvent == null)
+            var originalObjectEvent = originalEntity.Events.FirstOrDefault(x => x.EventId == command.EventId);
+            if (originalObjectEvent == null)
             {
                 throw new ObjectEventNotExistException("Object event with this id doesn't exist");
             }
 
             SetObjectVersionIfNotExist(command, originalEntity);
 
-            objectEvent.Name = command.Name;
-            objectEvent.Description = command.Description;
-            objectEvent.OccuredAt = command.OccuredAt;
+            originalObjectEvent.Name = command.Name ?? originalObjectEvent.Name;
+            originalObjectEvent.Description = command.Description ?? originalObjectEvent.Description;
+            originalObjectEvent.OccuredAt = command.OccuredAt != default ? command.OccuredAt : originalObjectEvent.OccuredAt;
 
             if (command.Photos != null)
             {
-                objectEvent.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
+                originalObjectEvent.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
             }
 
             if (command.Files != null)
             {
-                objectEvent.Files = command.Files.Select(x => ProcessFileInfo(x)).ToList();
+                originalObjectEvent.Files = command.Files.Select(x => ProcessFileInfo(x)).ToList();
             }
 
             await IncObjectVersion(command, originalEntity, originalEntity, cancellationToken);

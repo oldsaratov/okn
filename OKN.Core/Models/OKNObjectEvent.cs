@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace OKN.Core.Models
@@ -14,6 +15,9 @@ namespace OKN.Core.Models
 
         [JsonProperty("description")]
         public string Description { get; set; }
+
+        [JsonProperty("type")]
+        public EObjectEventType Type { get; set; }
 
         [JsonProperty("occuredAt")]
         public DateTime OccuredAt { get; set; }
