@@ -1,8 +1,6 @@
 using Newtonsoft.Json;
 using OKN.Core.Models;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;

@@ -8,6 +8,7 @@ using OKN.Core.Models.Queries;
 using OKN.Core.Repositories;
 using OKN.WebApp.Models.Objects;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -23,6 +24,59 @@ namespace OKN.WebApp.Controllers
         public ObjectsController(ObjectsRepository objectsRepository)
         {
             _objectsRepository = objectsRepository;
+        }
+
+        // POST api/objects
+        /// <summary>
+        /// Create object by Id
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Authorize]
+        [ProducesResponseType(typeof(OknObject), 200)]
+        public async Task<IActionResult> Create([FromBody] UpdateObjectViewModel request)
+        {
+            if (request == null)
+                return BadRequest();
+
+            var currentUser = HttpContext.User;
+
+            var updateCommand = new CreateObjectCommand
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Latitude = request.Latitude,
+                Longitude = request.Longitude,
+                Type = request.Type
+            };
+
+            if (request.MainPhoto != null)
+            {
+                updateCommand.MainPhoto = new FileInfo
+                {
+                    FileId = request.MainPhoto.FileId,
+                    Description = request.MainPhoto.Description
+                };
+            }
+
+            if (request.Photos != null)
+            {
+                updateCommand.Photos = request.Photos.Select(x => new FileInfo
+                {
+                    FileId = x.FileId,
+                    Description = x.Description
+                }).ToList();
+            }
+
+            updateCommand.SetCreator(
+                long.Parse(currentUser.FindFirstValue(ClaimTypes.NameIdentifier)).ToString(),
+                currentUser.FindFirstValue(ClaimTypes.Name),
+                currentUser.FindFirstValue(ClaimTypes.Email));
+
+            var result = await _objectsRepository.CreateObject(updateCommand, CancellationToken.None);
+
+            return Ok(result);
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
@@ -140,9 +194,9 @@ namespace OKN.WebApp.Controllers
 
                 foreach (var item in model.Data)
                 {
-                    if (item.Latitude != default && item.Longitude != default)
+                    if (!string.IsNullOrEmpty(item.Latitude) && !string.IsNullOrEmpty(item.Longitude))
                     {
-                        var point = new Point(new Position((double)item.Latitude, (double)item.Longitude));
+                        var point = new Point(new Position(double.Parse(item.Latitude, CultureInfo.InvariantCulture), double.Parse(item.Longitude, CultureInfo.InvariantCulture)));
                         var properties = new Dictionary<string, object>
                         {
                             {"objectId", item.ObjectId },

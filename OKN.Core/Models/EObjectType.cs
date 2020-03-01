@@ -5,7 +5,10 @@
         Empty = 0,
         Federal = 1,
         Regional = 2,
-        Municipal = 3,
-        New = 4
+        Unknown = 3,
+        Municipal = 4,
+        Identified = 5,
+        Excluded = 10,
+        Lost = 100
     }
 }

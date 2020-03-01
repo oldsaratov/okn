@@ -1,27 +1,27 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OKN.Core.Models;
+using OKN.Core.Models.Commands;
+using OKN.Core.Models.Queries;
+using OKN.Core.Repositories;
+using OKN.WebApp.Models.ObjectEvents;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using OKN.Core.Models;
-using Microsoft.AspNetCore.Mvc;
-using OKN.Core.Models.Commands;
-using OKN.Core.Models.Queries;
-using OKN.Core.Repositories;
-using OKN.WebApp.Models.ObjectEvents;
 
 namespace OKN.WebApp.Controllers
 {
     [Route("api/objects")]
     public class ObjectsEventsController : BaseController
     {
-        private readonly ObjectsRepository _objectsRepository;
+        private readonly ObjectsEventRepository _objectsEventsRepository;
 
-        public ObjectsEventsController(ObjectsRepository objectsRepository)
+        public ObjectsEventsController(ObjectsEventRepository objectsEventsRepository)
         {
-            _objectsRepository = objectsRepository;
+            _objectsEventsRepository = objectsEventsRepository;
         }
 
         // POST api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events
@@ -63,7 +63,7 @@ namespace OKN.WebApp.Controllers
                 currentUser.FindFirstValue(ClaimTypes.Name),
                 currentUser.FindFirstValue(ClaimTypes.Email));
 
-            await _objectsRepository.CreateObjectEvent(updateCommand, CancellationToken.None);
+            await _objectsEventsRepository.CreateObjectEvent(updateCommand, CancellationToken.None);
 
             return Ok();
         }
@@ -109,7 +109,7 @@ namespace OKN.WebApp.Controllers
                 currentUser.FindFirstValue(ClaimTypes.Name),
                 currentUser.FindFirstValue(ClaimTypes.Email));
 
-            await _objectsRepository.UpdateObjectEvent(updateCommand, CancellationToken.None);
+            await _objectsEventsRepository.UpdateObjectEvent(updateCommand, CancellationToken.None);
 
             return Ok();
         }
@@ -136,7 +136,7 @@ namespace OKN.WebApp.Controllers
                 currentUser.FindFirstValue(ClaimTypes.Name),
                 currentUser.FindFirstValue(ClaimTypes.Email));
 
-            await _objectsRepository.DeleteObjectEvent(deleteCommand, CancellationToken.None);
+            await _objectsEventsRepository.DeleteObjectEvent(deleteCommand, CancellationToken.None);
 
             return Ok();
         }
@@ -154,7 +154,26 @@ namespace OKN.WebApp.Controllers
         public async Task<IActionResult> ListEvents([FromQuery]int? page,
             [FromQuery]int? perPage, [FromRoute]string objectId)
         {
-            var model = await _objectsRepository.GetObjectEvents(new ListObjectEventsQuery(objectId, page, perPage), CancellationToken.None);
+            var model = await _objectsEventsRepository.GetObjectEvents(new ListObjectEventsQuery(objectId, page, perPage), CancellationToken.None);
+
+            if (model == null)
+                return Ok(Array.Empty<OknObjectEvent>());
+
+            return Ok(model);
+        }
+
+        // GET api/objects/events/last
+        /// <summary>
+        /// Get last events from all objects
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="perPage"></param>
+        /// <returns></returns>
+        [HttpGet("events/last")]
+        [ProducesResponseType(typeof(List<OknObjectEvent>), 200)]
+        public async Task<IActionResult> LastEvents([FromQuery]int? page, [FromQuery]int? perPage)
+        {
+            var model = await _objectsEventsRepository.GetLastObjectEvents(new ListObjectEventsQuery(null, page, perPage), CancellationToken.None);
 
             if (model == null)
                 return Ok(Array.Empty<OknObjectEvent>());
@@ -173,7 +192,7 @@ namespace OKN.WebApp.Controllers
         [ProducesResponseType(typeof(OknObjectEvent), 200)]
         public async Task<IActionResult> GetEvent([FromRoute]string objectId, [FromRoute] string eventId)
         {
-            var model = await _objectsRepository.GetEvent(new ObjectEventQuery(objectId, eventId), CancellationToken.None);
+            var model = await _objectsEventsRepository.GetEvent(new ObjectEventQuery(objectId, eventId), CancellationToken.None);
 
             if (model == null)
                 return NotFound();
