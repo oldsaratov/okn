@@ -120,7 +120,11 @@ namespace OKN.Core.Repositories
                 filter = Builders<ObjectEntity>.Filter.And(filter, nameTokenFilter);
             }
 
-            var excludeFields = Builders<ObjectEntity>.Projection.Exclude(d => d.Events);
+            var excludeFields = Builders<ObjectEntity>.Projection
+                .Exclude(d => d.Events)
+                .Exclude(d => d.Federal)
+                .Exclude(d => d.Version)
+                .Exclude(d => d.Photos);
 
             var cursor = _context.Objects.Find(filter);
             var count = cursor.CountDocuments(cancellationToken);

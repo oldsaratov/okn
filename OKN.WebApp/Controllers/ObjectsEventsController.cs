@@ -162,6 +162,25 @@ namespace OKN.WebApp.Controllers
             return Ok(model);
         }
 
+        // GET api/objects/events/last
+        /// <summary>
+        /// Get last events from all objects
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="perPage"></param>
+        /// <returns></returns>
+        [HttpGet("events/last")]
+        [ProducesResponseType(typeof(List<OknObjectEvent>), 200)]
+        public async Task<IActionResult> LastEvents([FromQuery]int? page, [FromQuery]int? perPage)
+        {
+            var model = await _objectsEventsRepository.GetLastObjectEvents(new ListObjectEventsQuery(null, page, perPage), CancellationToken.None);
+
+            if (model == null)
+                return Ok(Array.Empty<OknObjectEvent>());
+
+            return Ok(model);
+        }
+
         // GET api/objects/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5/events/2abbbeb2-baba-4278-9ad4-2c275aa2a8f5
         /// <summary>
         /// Get event by object Id and event Id

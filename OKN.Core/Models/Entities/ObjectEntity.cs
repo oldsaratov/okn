@@ -38,6 +38,9 @@ namespace OKN.Core.Models.Entities
         [BsonElement("events")]
         public List<ObjectEventEntity> Events { get; set; }
 
+        [BsonElement("lastEvent")]
+        public ObjectEventEntity LastEvent { get; set; }
+
         [BsonElement("mainPhoto")]
         public FileEntity MainPhoto { get; set; }
 

@@ -29,6 +29,9 @@ namespace OKN.Core.Models
         [JsonProperty("events")]
         public List<OknObjectEvent> Events { get; set; }
 
+        [JsonProperty("lastEvent")]
+        public OknObjectEvent LastEvent { get; set; }
+
         [JsonProperty("eventsCount")]
         public int EventsCount { get; set; }
 

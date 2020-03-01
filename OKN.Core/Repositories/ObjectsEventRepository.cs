@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using Uploadcare;
 
 namespace OKN.Core.Repositories
@@ -35,6 +36,43 @@ namespace OKN.Core.Repositories
             var evnt = entity?.Events?.FirstOrDefault(x => x.EventId == query.EventId);
 
             return evnt != null ? _mapper.Map<ObjectEventEntity, OknObjectEvent>(evnt) : null;
+        }
+
+        public async Task<PagedList<OknObject>> GetLastObjectEvents(ListObjectEventsQuery query, CancellationToken cancellationToken)
+        {
+            var pipeline = new[] {
+                new BsonDocument("$unwind", "$events"),
+                new BsonDocument("$sort",
+                    new BsonDocument("events.occuredAt", -1)),
+                new BsonDocument("$limit", query.PerPage),
+                new BsonDocument("$skip", (query.Page - 1) * query.PerPage),
+                new BsonDocument("$addFields",
+                    new BsonDocument("lastEvent", "$events")),
+                new BsonDocument("$project",
+                    new BsonDocument
+                    {
+                        { "events", 0 },
+                        { "photos", 0 },
+                        { "versionInfo", 0 },
+                        { "federal", 0 }
+                    })
+            };
+
+            var result = await _context.Objects
+                .Aggregate<ObjectEntity>(pipeline, cancellationToken: cancellationToken)
+                .ToListAsync(cancellationToken: cancellationToken);
+
+            var model = _mapper.Map<List<ObjectEntity>, List<OknObject>>(result);
+
+            var paged = new PagedList<OknObject>
+            {
+                Data = model,
+                Page = query.Page,
+                PerPage = query.PerPage,
+                Total = result.Count
+            };
+
+            return paged;
         }
 
         public async Task<PagedList<OknObjectEvent>> GetObjectEvents(ListObjectEventsQuery query, CancellationToken cancellationToken)
