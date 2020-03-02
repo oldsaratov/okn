@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -29,6 +28,9 @@ namespace OKN.Core.Models.Entities
         [BsonElement("type")]
         public EObjectType Type { get; set; }
 
+        [BsonElement("typeHistory")]
+        public List<ObjectTypeHistoryEntity> TypeHistory { get; set; }
+        
         [BsonElement("versionInfo")]
         public VersionInfoEntity Version { get; set; }
 

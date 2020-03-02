@@ -3,6 +3,7 @@
     public enum EObjectEventType
     {
         CommonEvent = 0,
-        Protection = 1, //постановка на охрану
+        OnProtection = 1, //постановка на охрану
+        TypeChange = 1, //Смена охранного статуса
     }
 }

@@ -199,12 +199,28 @@ namespace OKN.Core.Repositories
                 Longitude = command.Longitude ?? originalEntity.Longitude,
                 Latitude = command.Latitude ?? originalEntity.Latitude,
                 Type = command.Type != default ? command.Type : originalEntity.Type,
+                TypeHistory = originalEntity.TypeHistory,
                 EventsCount = originalEntity.EventsCount,
                 Events = originalEntity.Events,
                 MainPhoto = command.MainPhoto != null
                     ? ProcessFileInfo(command.MainPhoto)
                     : null
             };
+
+            if (command.TypeHistory != null)
+            {
+                if (newEntity.TypeHistory == null)
+                {
+                    newEntity.TypeHistory = new List<ObjectTypeHistoryEntity>();
+                }
+
+                newEntity.TypeHistory.Add(new ObjectTypeHistoryEntity
+                {
+                    OccuredAt = command.TypeHistory.OccuredAt,
+                    Reason = command.TypeHistory.Reason,
+                    Type = command.TypeHistory.Type
+                });
+            }
 
             if (command.Photos != null)
             {

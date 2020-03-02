@@ -12,6 +12,7 @@ namespace OKN.Core.Mappings
         {
             CreateMap<ObjectEntity, OknObject>();
             CreateMap<ObjectEventEntity, OknObjectEvent>();
+            CreateMap<ObjectTypeHistoryEntity, OknTypeHistory>();
             CreateMap<VersionInfoEntity, VersionInfo>();
             CreateMap<UserInfoEntity, UserInfo>();
             CreateMap<FileEntity, FileInfo>();

@@ -40,6 +40,42 @@ namespace FederalDataImport
 
             foreach (var item in collection1.AsQueryable())
             {
+                if (item.Contains("events") && item["events"] != BsonNull.Value && item["events"].AsBsonArray.Any())
+                {
+                    if (!item.Contains("typeHistory") || item["typeHistory"] == BsonNull.Value || !item["typeHistory"].AsBsonArray.Any())
+                    {
+                        var objectId = item["_id"].ToString();
+
+                        if (item["events"].AsBsonArray.Any(x => !x.AsBsonDocument.Contains("type")))
+                        {
+                            ;
+                        }
+
+                        var events = item["events"].AsBsonArray.Where(x => x["type"] == 1).ToList();
+                        if (events.Count == 1)
+                        {
+                            var oknevent = events.FirstOrDefault().AsBsonDocument;
+
+
+                            var updateObjectCommand = new UpdateObjectCommand(objectId)
+                            {
+                                TypeHistory = new OknTypeHistory
+                                {
+                                    OccuredAt = DateTime.Parse(oknevent["occuredAt"].ToString()),
+                                    Type = Enum.Parse<EObjectType>(item["type"].ToString()),
+                                    Reason = oknevent["description"].ToString()
+                                }
+                            };
+
+                            await repo1.UpdateObject(updateObjectCommand, CancellationToken.None);
+                        }
+                        else
+                        {
+                            Console.WriteLine(objectId);
+                        }
+                    }
+                }
+
                 //if (item.Contains("federal") && item["federal"] != BsonNull.Value && (!item.Contains("mainPhoto") || item["mainPhoto"] == BsonNull.Value))
                 //{
                 //    var federalInfo = item["federal"].AsBsonDocument;

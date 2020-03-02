@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace OKN.Core.Models
@@ -22,7 +23,10 @@ namespace OKN.Core.Models
         
         [JsonProperty("type")]
         public EObjectType Type { get; set; }
-        
+
+        [BsonElement("typeHistory")]
+        public List<OknTypeHistory> TypeHistory { get; set; }
+
         [JsonProperty("versionInfo")]
         public VersionInfo Version { get; set; }
 

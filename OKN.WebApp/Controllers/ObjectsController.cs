@@ -102,6 +102,14 @@ namespace OKN.WebApp.Controllers
             if (current == null)
                 return NotFound();
 
+            if (request.Type != current.Type && request.Type != default)
+            {
+                if (string.IsNullOrEmpty(request.TypeHistory?.Reason))
+                {
+                    return BadRequest("'typeHistory' should be provided when type is updated");
+                }
+            }
+
             var currentUser = HttpContext.User;
 
             var updateCommand = new UpdateObjectCommand(objectId)
@@ -110,7 +118,8 @@ namespace OKN.WebApp.Controllers
                 Description = request.Description,
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
-                Type = request.Type
+                Type = request.Type,
+                TypeHistory = request.TypeHistory
             };
 
             if (request.MainPhoto != null)
