@@ -170,7 +170,7 @@ namespace OKN.WebApp.Controllers
         /// <param name="perPage"></param>
         /// <returns></returns>
         [HttpGet("events/last")]
-        [ProducesResponseType(typeof(List<OknObjectEvent>), 200)]
+        [ProducesResponseType(typeof(List<OknObject>), 200)]
         public async Task<IActionResult> LastEvents([FromQuery]int? page, [FromQuery]int? perPage)
         {
             var model = await _objectsEventsRepository.GetLastObjectEvents(new ListObjectEventsQuery(null, page, perPage), CancellationToken.None);
