@@ -49,6 +49,9 @@ namespace OKN.Core.Models.Entities
         [BsonElement("photos")]
         public List<FileEntity> Photos { get; set; }
 
+        [BsonElement("links")]
+        public List<LinkEntity> Links { get; set; }
+
         public ObjectEntity() { }
 
         internal void AddEvent(ObjectEventEntity eventEntity)

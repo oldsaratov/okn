@@ -170,6 +170,11 @@ namespace OKN.Core.Repositories
                 entity.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
             }
 
+            if (command.Links != null)
+            {
+                entity.Links = command.Links.Select(x => new LinkEntity { Type = x.Type, Url = x.Url }).ToList();
+            }
+
             await _context.Objects.InsertOneAsync(entity, cancellationToken: cancellationToken);
 
             return _mapper.Map<ObjectEntity, OknObject>(entity);
@@ -225,6 +230,11 @@ namespace OKN.Core.Repositories
             if (command.Photos != null)
             {
                 newEntity.Photos = command.Photos.Select(x => ProcessFileInfo(x)).ToList();
+            }
+
+            if (command.Links != null)
+            {
+                newEntity.Links = command.Links.Select(x => new LinkEntity { Type = x.Type, Url = x.Url }).ToList();
             }
 
             await IncObjectVersion(command, originalEntity, newEntity, cancellationToken);

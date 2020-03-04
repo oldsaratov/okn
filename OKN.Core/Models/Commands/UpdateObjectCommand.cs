@@ -22,6 +22,8 @@ namespace OKN.Core.Models.Commands
         
         public List<FileInfo> Photos { get; set; }
 
+        public List<LinkInfo> Links { get; set; }
+
         public UpdateObjectCommand(string objectId)
         {
             ObjectId = objectId;

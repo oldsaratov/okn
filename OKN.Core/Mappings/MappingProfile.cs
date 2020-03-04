@@ -16,6 +16,7 @@ namespace OKN.Core.Mappings
             CreateMap<VersionInfoEntity, VersionInfo>();
             CreateMap<UserInfoEntity, UserInfo>();
             CreateMap<FileEntity, FileInfo>();
+            CreateMap<LinkEntity, LinkInfo>();
             CreateMap<ObjectId, string>().ConvertUsing(o => o.ToString());
             CreateMap<string, ObjectId>().ConvertUsing(o => ObjectId.Parse(o));
             CreateMap<BsonDateTime, DateTime>().ConvertUsing(o => (DateTime)o);

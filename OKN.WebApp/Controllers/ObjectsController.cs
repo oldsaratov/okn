@@ -1,4 +1,5 @@
-﻿using GeoJSON.Net.Feature;
+﻿using System;
+using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,11 @@ namespace OKN.WebApp.Controllers
                 Longitude = request.Longitude,
                 Type = request.Type
             };
+
+            if (request.Links != null)
+            {
+                updateCommand.Links = request.Links;
+            }
 
             if (request.MainPhoto != null)
             {
@@ -138,6 +144,11 @@ namespace OKN.WebApp.Controllers
                     FileId = x.FileId,
                     Description = x.Description
                 }).ToList();
+            }
+
+            if (request.Links != null)
+            {
+                updateCommand.Links = request.Links;
             }
 
             updateCommand.SetCreator(

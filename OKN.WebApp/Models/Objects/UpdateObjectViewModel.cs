@@ -27,6 +27,9 @@ namespace OKN.WebApp.Models.Objects
 	    [JsonProperty("photos")]
 	    public List<FileInfoViewModel> Photos { get; set; }
 
+	    [JsonProperty("links")]
+	    public List<LinkInfo> Links { get; set; }
+
         [JsonProperty("typeHistory")]
 	    public OknTypeHistory TypeHistory { get; set; }
     }

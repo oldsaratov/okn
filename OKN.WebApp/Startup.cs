@@ -10,6 +10,10 @@ using MongoDB.Driver;
 using System.Reflection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
+using OKN.Core.Helpers;
 
 namespace OKN.WebApp
 {
@@ -70,6 +74,9 @@ namespace OKN.WebApp
         {
             var connectionString = Configuration.GetConnectionString("MongoDB");
             var url = new MongoUrl(connectionString);
+
+            var enumAsStringSerializationProvider = new EnumDescriptionSerializerProvider();
+            BsonSerializer.RegisterSerializationProvider(enumAsStringSerializationProvider);
 
             var client = new MongoClient(url);
             var database = client.GetDatabase(url.DatabaseName);

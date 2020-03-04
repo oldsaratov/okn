@@ -44,5 +44,8 @@ namespace OKN.Core.Models
         
         [JsonProperty("photos")]
         public List<FileInfo> Photos { get; set; }
+
+        [JsonProperty("links")]
+        public List<LinkInfo> Links { get; set; }
     }
 }
