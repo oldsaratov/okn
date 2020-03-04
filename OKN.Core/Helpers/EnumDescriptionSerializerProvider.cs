@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -29,9 +30,16 @@ namespace OKN.Core.Helpers
 
         public override TEnum Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var valAsString = context.Reader.ReadString();
-            var enumValue = valAsString.GetValueFromDescription<TEnum>();
-            return enumValue;
+            if (context.Reader.CurrentBsonType == Representation)
+            {
+                var valAsString = context.Reader.ReadString();
+                var enumValue = valAsString.GetValueFromDescription<TEnum>();
+                return enumValue;
+            }
+
+            object obj = context.Reader.ReadInt32();
+
+            return (TEnum)obj;
         }
 
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnum value)
