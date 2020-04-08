@@ -75,8 +75,8 @@ namespace OKN.WebApp
             var connectionString = Configuration.GetConnectionString("MongoDB");
             var url = new MongoUrl(connectionString);
 
-            var enumAsStringSerializationProvider = new EnumDescriptionSerializerProvider();
-            BsonSerializer.RegisterSerializationProvider(enumAsStringSerializationProvider);
+            //var enumAsStringSerializationProvider = new EnumDescriptionSerializerProvider();
+            //BsonSerializer.RegisterSerializationProvider(enumAsStringSerializationProvider);
 
             var client = new MongoClient(url);
             var database = client.GetDatabase(url.DatabaseName);

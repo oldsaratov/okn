@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.10.2" />
-    <PackageReference Include="UploadcareCSharp" Version="1.0.6" />
+    <PackageReference Include="MongoDB.Driver" Version="2.10.3" />
+    <PackageReference Include="UploadcareCSharp" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>

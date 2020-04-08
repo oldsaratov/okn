@@ -1,4 +1,3 @@
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace OKN.Core.Models.Entities
@@ -7,7 +6,7 @@ namespace OKN.Core.Models.Entities
     public class LinkEntity
     {
         [BsonElement("type")]
-        public ELinkTypes Type { get; set; }
+        public string Type { get; set; }
 
         [BsonElement("url")]
         public string Url { get; set; }

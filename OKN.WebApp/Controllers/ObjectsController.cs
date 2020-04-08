@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using OKN.WebApp.Validation;
 
 namespace OKN.WebApp.Controllers
 {
@@ -40,6 +41,13 @@ namespace OKN.WebApp.Controllers
         {
             if (request == null)
                 return BadRequest();
+
+            var validator = new UpdateObjectValidator();
+            var validationResult = validator.Validate(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.FirstOrDefault()?.ErrorMessage);
+            }
 
             var currentUser = HttpContext.User;
 
@@ -100,6 +108,13 @@ namespace OKN.WebApp.Controllers
         {
             if (request == null)
                 return BadRequest();
+
+            var validator = new UpdateObjectValidator();
+            var validationResult = validator.Validate(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.FirstOrDefault()?.ErrorMessage);
+            }
 
             var objectQuery = new ObjectQuery(objectId);
 
@@ -201,7 +216,7 @@ namespace OKN.WebApp.Controllers
 
             if (types != null)
             {
-                query.Types = types.Split(',').Select(x => (EObjectType)(int.Parse(x))).ToArray();
+                query.Types = types.Split(',').Select(x => (EObjectType)int.Parse(x)).ToArray();
             }
 
             var model = await _objectsRepository.GetObjects(query, CancellationToken.None);
